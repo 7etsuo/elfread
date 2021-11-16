@@ -18,6 +18,8 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 
+#include "./include/strings_global.h"
+
 #define         err_exit(msg) do { perror(msg); \
                         exit(EXIT_FAILURE); \
                         } while (0);
@@ -25,16 +27,30 @@
 #define         INDEX_ET_PROC 7
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-int
-emit_p_type_offset(int val);
-int
-read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
-int
-write_mem_to_file(const char* filename, const void* data, size_t size);
-void
-display_elf_header(const Elf64_Ehdr* ehdr);
-void
-display_elf_p_segment_header(const Elf64_Phdr* phdr);
+const char* elf_class_id[ELFCLASSNUM] = {
+        #include "./include/e_class_strings.h" 
+};
+const char* elf_data_id[ELFDATANUM] = {
+        #include "./include/e_data_strings.h" 
+};
+const char* elf_osabi_id[] = {
+        #include "./include/e_osabi_strings.h" 
+};
+const char* elf_e_type_id[] = {
+        #include "./include/e_type_strings.h" 
+};
+const char* elf_e_machine_id[EM_NUM] = {
+        #include "./include/e_machine_strings.h" 
+};
+const char* elf_e_version_id[EV_NUM] = {
+        #include "./include/e_version_strings.h" 
+};
+
+int emit_p_type_offset(int val);
+void display_elf_p_segment_header(const Elf64_Phdr* phdr);
+int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
+int write_mem_to_file(const char* filename, const void* data, size_t size);
+void display_elf_header(const Elf64_Ehdr* ehdr);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -46,15 +62,14 @@ const char* g_help_menu = {
         "   --segments                  An alias for --program - headers\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
-        "                               spl0its-r-us security\n\n"
+        "                               https://www.rootstorm.com\n\n"
 };
 
 static int g_elf_file_header_flag = 0;
 static int g_elf_prog_header_flag = 0;
 static int g_elf_help_flag = 0;
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
         void* data;
         const char* binpath;
@@ -77,7 +92,8 @@ main(int argc, char** argv)
                 c = getopt_long(argc, argv, "hlH",
                         long_options, &option_index);
                 if (c == -1) {
-                        g_elf_help_flag = optind == 1 ? optind : g_elf_help_flag;
+                        g_elf_help_flag = optind == 1 ?
+                                optind : g_elf_help_flag;
                         break;
                 }
 
@@ -113,7 +129,9 @@ main(int argc, char** argv)
         offset = sizeof(Elf64_Ehdr);
 
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
-                err_exit("* Error: Not an ELF file- it has the wrong magic bytes at the start");
+                err_exit("* Error: Not an ELF file"
+                        "- it has the wrong magic bytes at the start"
+                );
 
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
@@ -127,8 +145,7 @@ main(int argc, char** argv)
 }
 
 
-int
-emit_p_type_offset(int val)
+int emit_p_type_offset(int val)
 {
         int code;
         switch (val)
@@ -210,31 +227,11 @@ display_elf_p_segment_header(const Elf64_Phdr* phdr)
 }
 
 
-void
-display_elf_header(const Elf64_Ehdr* ehdr)
+void display_elf_header(const Elf64_Ehdr * ehdr)
 {
         unsigned char elf_ei_osabi, elf_ei_data, elf_ei_class;
         Elf64_Half elf_e_type;
         Elf64_Word elf_e_version;
-
-        const char* elf_class_id[ELFCLASSNUM] = {
-                #include "./include/e_class_strings.h" 
-        };
-        const char* elf_data_id[ELFDATANUM] = {
-                #include "./include/e_data_strings.h" 
-        };
-        const char* elf_osabi_id[] = {
-                #include "./include/e_osabi_strings.h" 
-        };
-        const char* elf_e_type_id[] = {
-                #include "./include/e_type_strings.h" 
-        };
-        const char* elf_e_machine_id[EM_NUM] = {
-                #include "./include/e_machine_strings.h" 
-        };
-        const char* elf_e_version_id[EV_NUM] = {
-                #include "./include/e_version_strings.h" 
-        };
 
         elf_ei_class = ehdr->e_ident[EI_CLASS];
         if (elf_ei_class < ELFCLASS32 || elf_ei_class > ELFCLASS64)
@@ -258,7 +255,8 @@ display_elf_header(const Elf64_Ehdr* ehdr)
         else if (elf_e_type >= ET_HIOS && elf_e_type <= ET_LOPROC)
                 elf_e_type = INDEX_ET_PROC;
 
-        elf_e_version = ehdr->e_version != EV_CURRENT ? EV_NONE : ehdr->e_version;
+        elf_e_version = ehdr->e_version != EV_CURRENT ?
+                EV_NONE : ehdr->e_version;
 
         printf(
                 "ELF Header:\n"
@@ -300,8 +298,7 @@ display_elf_header(const Elf64_Ehdr* ehdr)
 }
 
 
-int
-read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
+int read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
 {
         struct stat sb;
         FILE* file;
@@ -346,8 +343,7 @@ err_ret:
 }
 
 
-int
-write_mem_to_file(const char* filename, const void* data, size_t size)
+int write_mem_to_file(const char* filename, const void* data, size_t size)
 {
         struct stat sb;
         int fd;
