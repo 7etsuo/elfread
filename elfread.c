@@ -119,6 +119,7 @@ main(int argc, char** argv)
                 display_elf_header(&ehdr);
 
         memcpy(&phdr, data + offset, sizeof(Elf64_Phdr) * ehdr.e_phnum);
+
         offset += sizeof(Elf64_Phdr) * ehdr.e_phnum;
 
         free(data);
@@ -197,8 +198,17 @@ emit_p_type_offset(int val)
 void
 display_elf_p_segment_header(const Elf64_Phdr* phdr)
 {
-
+        printf(
+                "Elf file type is DYN (Shared object file)\n"
+                "Entry point 0x31a0\n"
+                "There are 11 program headers, starting at offset 64\n"
+                "\n"
+                "Program Headers:\n"
+                "  Type           Offset             VirtAddr           PhysAddr\n"
+                "                 FileSiz            MemSiz              Flags  Align\n"
+        );
 }
+
 
 void
 display_elf_header(const Elf64_Ehdr* ehdr)
