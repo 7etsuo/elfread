@@ -39,7 +39,7 @@ const char* g_help_menu = {
         "   --segments                  An alias for --program - headers\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
-        "                               spl0its-r-us security\n\n"
+        "                               https://www.rootstorm.com\n\n"
 };
 
 static int g_elf_file_header_flag = 0;
