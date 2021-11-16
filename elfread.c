@@ -212,8 +212,7 @@ int emit_p_type_offset(int val)
 }
 
 
-void
-display_elf_p_segment_header(const Elf64_Phdr* phdr)
+void display_elf_p_segment_header(const Elf64_Phdr* phdr)
 {
         printf(
                 "Elf file type is DYN (Shared object file)\n"
