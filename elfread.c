@@ -25,12 +25,9 @@
 #define         INDEX_ET_PROC 7
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-int
-read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
-int
-write_mem_to_file(const char* filename, const void* data, size_t size);
-void
-display_elf_header(const Elf64_Ehdr* ehdr);
+int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
+int write_mem_to_file(const char* filename, const void* data, size_t size);
+void display_elf_header(const Elf64_Ehdr* ehdr);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -49,8 +46,7 @@ static int g_elf_file_header_flag = 0;
 static int g_elf_prog_header_flag = 0;
 static int g_elf_help_flag = 0;
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
         void* data;
         const char* binpath;
@@ -71,7 +67,8 @@ main(int argc, char** argv)
                 c = getopt_long(argc, argv, "hlH",
                         long_options, &option_index);
                 if (c == -1) {
-                        g_elf_help_flag = optind == 1 ? optind : g_elf_help_flag;
+                        g_elf_help_flag = optind == 1 ?
+                                optind : g_elf_help_flag;
                         break;
                 }
 
@@ -105,7 +102,9 @@ main(int argc, char** argv)
 
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
-                err_exit("* Error: Not an ELF file - it has the wrong magic bytes at the start");
+                err_exit("* Error: Not an ELF file"
+                        "- it has the wrong magic bytes at the start"
+                );
 
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
@@ -115,8 +114,7 @@ main(int argc, char** argv)
 }
 
 
-void
-display_elf_header(const Elf64_Ehdr* ehdr)
+void display_elf_header(const Elf64_Ehdr* ehdr)
 {
         unsigned char elf_ei_osabi, elf_ei_data, elf_ei_class;
         Elf64_Half elf_e_type;
@@ -163,7 +161,8 @@ display_elf_header(const Elf64_Ehdr* ehdr)
         else if (elf_e_type >= ET_HIOS && elf_e_type <= ET_LOPROC)
                 elf_e_type = INDEX_ET_PROC;
 
-        elf_e_version = ehdr->e_version != EV_CURRENT ? EV_NONE : ehdr->e_version;
+        elf_e_version = ehdr->e_version != EV_CURRENT ?
+                EV_NONE : ehdr->e_version;
 
         printf(
                 "ELF Header:\n"
@@ -205,8 +204,7 @@ display_elf_header(const Elf64_Ehdr* ehdr)
 }
 
 
-int
-read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
+int read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
 {
         struct stat sb;
         FILE* file;
@@ -251,8 +249,7 @@ err_ret:
 }
 
 
-int
-write_mem_to_file(const char* filename, const void* data, size_t size)
+int write_mem_to_file(const char* filename, const void* data, size_t size)
 {
         struct stat sb;
         int fd;
