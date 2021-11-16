@@ -47,7 +47,7 @@ const char* elf_e_version_id[EV_NUM] = {
 };
 
 int emit_p_type_offset(int val);
-void display_elf_p_segment_header(const Elf64_Phdr* phdr);
+void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr);
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
@@ -212,7 +212,7 @@ int emit_p_type_offset(int val)
 }
 
 
-void display_elf_p_segment_header(const Elf64_Phdr* phdr)
+void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr)
 {
         printf(
                 "Elf file type is DYN (Shared object file)\n"
@@ -226,7 +226,7 @@ void display_elf_p_segment_header(const Elf64_Phdr* phdr)
 }
 
 
-void display_elf_header(const Elf64_Ehdr * ehdr)
+void display_elf_header(const Elf64_Ehdr* ehdr)
 {
         unsigned char elf_ei_osabi, elf_ei_data, elf_ei_class;
         Elf64_Half elf_e_type;
