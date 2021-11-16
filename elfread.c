@@ -34,12 +34,12 @@ const char* g_help_menu = {
         " Display information about the contents of ELF format files\n"
         " Options are:\n"
         "\n"
-        "-h --file-header               Display the ELF file header\n"
+        "-h --file-header                Display the ELF file header\n"
         "-l --program-headers           Display the program headers\n"
         "   --segments                  An alias for --program - headers\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
-        "                               spl0its-r-us security\n\n"
+        "                               https://www.rootstorm.com\n\n"
 };
 
 static int g_elf_file_header_flag = 0;
