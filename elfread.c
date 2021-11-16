@@ -18,12 +18,33 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 
+#include "./include/strings_global.h"
+
 #define         err_exit(msg) do { perror(msg); \
                         exit(EXIT_FAILURE); \
                         } while (0);
 #define         INDEX_ET_OS 6	
 #define         INDEX_ET_PROC 7
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+const char* elf_class_id[ELFCLASSNUM] = {
+        #include "./include/e_class_strings.h" 
+};
+const char* elf_data_id[ELFDATANUM] = {
+        #include "./include/e_data_strings.h" 
+};
+const char* elf_osabi_id[] = {
+        #include "./include/e_osabi_strings.h" 
+};
+const char* elf_e_type_id[] = {
+        #include "./include/e_type_strings.h" 
+};
+const char* elf_e_machine_id[EM_NUM] = {
+        #include "./include/e_machine_strings.h" 
+};
+const char* elf_e_version_id[EV_NUM] = {
+        #include "./include/e_version_strings.h" 
+};
 
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
@@ -119,25 +140,6 @@ void display_elf_header(const Elf64_Ehdr* ehdr)
         unsigned char elf_ei_osabi, elf_ei_data, elf_ei_class;
         Elf64_Half elf_e_type;
         Elf64_Word elf_e_version;
-
-        const char* elf_class_id[ELFCLASSNUM] = {
-                #include "./include/e_class_strings.h" 
-        };
-        const char* elf_data_id[ELFDATANUM] = {
-                #include "./include/e_data_strings.h" 
-        };
-        const char* elf_osabi_id[] = {
-                #include "./include/e_osabi_strings.h" 
-        };
-        const char* elf_e_type_id[] = {
-                #include "./include/e_type_strings.h" 
-        };
-        const char* elf_e_machine_id[EM_NUM] = {
-                #include "./include/e_machine_strings.h" 
-        };
-        const char* elf_e_version_id[EV_NUM] = {
-                #include "./include/e_version_strings.h" 
-        };
 
         elf_ei_class = ehdr->e_ident[EI_CLASS];
         if (elf_ei_class < ELFCLASS32 || elf_ei_class > ELFCLASS64)
