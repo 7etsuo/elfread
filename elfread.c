@@ -73,8 +73,7 @@ main(int argc, char** argv)
                 c = getopt_long(argc, argv, "hlH",
                         long_options, &option_index);
                 if (c == -1) {
-                        g_elf_help_flag = optind == 1 ?
-                                optind : g_elf_help_flag;
+                        g_elf_help_flag = optind == 1 ? optind : g_elf_help_flag;
                         break;
                 }
 
@@ -111,15 +110,12 @@ main(int argc, char** argv)
         offset = sizeof(Elf64_Ehdr);
 
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
-                err_exit(
-                        "* Error: Not an ELF file"
-                        " - it has the wrong magic bytes at the start"
-                );
+                err_exit("* Error: Not an ELF file- it has the wrong magic bytes at the start");
 
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
-        memcpy(&phdr, &data[offset], sizeof(Elf64_Phdr) * ehdr.e_phnum);
+        memcpy(&phdr, data + offset, sizeof(Elf64_Phdr) * ehdr.e_phnum);
 
         free(data);
         return 0;
