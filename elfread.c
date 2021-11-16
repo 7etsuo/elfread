@@ -26,11 +26,15 @@
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 int
+emit_p_type_offset(int val);
+int
 read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int
 write_mem_to_file(const char* filename, const void* data, size_t size);
 void
 display_elf_header(const Elf64_Ehdr* ehdr);
+void
+display_elf_p_segment_header(const Elf64_Phdr* phdr);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -105,7 +109,6 @@ main(int argc, char** argv)
         if (datasz < sizeof(Elf64_Ehdr))
                 err_exit("* not an ordinary file");
 
-        memset(&ehdr, 0, datasz);
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
         offset = sizeof(Elf64_Ehdr);
 
@@ -116,11 +119,86 @@ main(int argc, char** argv)
                 display_elf_header(&ehdr);
 
         memcpy(&phdr, data + offset, sizeof(Elf64_Phdr) * ehdr.e_phnum);
+        offset += sizeof(Elf64_Phdr) * ehdr.e_phnum;
 
         free(data);
         return 0;
 }
 
+
+int
+emit_p_type_offset(int val)
+{
+        int code;
+        switch (val)
+        {
+        case 0:
+                code = 0;
+                break;
+        case 1:
+                code = 1;
+                break;
+        case 2:
+                code = 2;
+                break;
+        case 3:
+                code = 3;
+                break;
+        case 4:
+                code = 4;
+                break;
+        case 5:
+                code = 5;
+                break;
+        case 6:
+                code = 6;
+                break;
+        case 7:
+                code = 7;
+                break;
+        case 8:
+                code = 8;
+                break;
+        case 0x60000000:
+                code = 9;
+                break;
+        case 0x6474e550:
+                code = 10;
+                break;
+        case 0x6474e551:
+                code = 11;
+                break;
+        case 0x6474e552:
+                code = 12;
+                break;
+        case 0x6ffffffa:
+                code = 13;
+                break;
+        case 0x6ffffffb:
+                code = 14;
+                break;
+        case 0x6fffffff:
+                code = 15;
+                break;
+        case 0x70000000:
+                code = 16;
+                break;
+        case 0x7fffffff:
+                code = 17;
+                break;
+        default:
+                code = -1;
+        }
+
+        return code;
+}
+
+
+void
+display_elf_p_segment_header(const Elf64_Phdr* phdr)
+{
+
+}
 
 void
 display_elf_header(const Elf64_Ehdr* ehdr)
