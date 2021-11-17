@@ -70,7 +70,9 @@ const char* g_help_menu = {
         "\n"
         "-h --file-header               Display the ELF file header\n"
         "-l --program-headers           Display the program headers\n"
-        "   --segments                  An alias for --program - headers\n"
+        "   --segments                                             \n"
+        "-S --section-headers           Displays the information contained \n"
+        "   --sections                  in the file's section headers\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
         "                               https://www.rootstorm.com\n\n"
@@ -78,6 +80,7 @@ const char* g_help_menu = {
 
 static int g_elf_file_header_flag = 0;
 static int g_elf_prog_header_flag = 0;
+static int g_elf_section_header_flag = 0;
 static int g_elf_help_flag = 0;
 
 int main(int argc, char** argv)
@@ -87,19 +90,23 @@ int main(int argc, char** argv)
         size_t datasz;
         Elf64_Ehdr ehdr;
         Elf64_Phdr segment[PN_XNUM];
+        Elf64_Shdr section[SHN_LORESERVE];
+
         int c, option_index;
 
         while (1) {
                 option_index = 0;
                 static struct option long_options[] = {
-                    {"file-header",     no_argument, 0, 'h' },
-                    {"program-headers", no_argument, 0, 'l' },
-                    {"segments",        no_argument, 0, 'l' },
-                    {"help",            no_argument, 0, 'H' },
-                    { 0,                0,           0,  0  }
+                    { "file-header",     no_argument, 0, 'h' },
+                    { "program-headers", no_argument, 0, 'l' },
+                    { "segments",        no_argument, 0, 'l' },
+                    { "section-headers", no_argument, 0, 'S' },
+                    { "sections",        no_argument, 0, 'S' },
+                    { "help",            no_argument, 0, 'H' },
+                    {  0,                0,           0,  0  }
                 };
 
-                c = getopt_long(argc, argv, "hlH",
+                c = getopt_long(argc, argv, "hlHS",
                         long_options, &option_index);
                 if (c == -1) {
                         g_elf_help_flag = optind == 1 ?
@@ -113,6 +120,9 @@ int main(int argc, char** argv)
                         break;
                 case 'l':
                         g_elf_prog_header_flag = 1;
+                        break;
+                case 'S':
+                        g_elf_section_header_flag = 1;
                         break;
                 case 'H':
                 case '?':
@@ -146,7 +156,7 @@ int main(int argc, char** argv)
                 display_elf_header(&ehdr);
 
         memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
- 
+
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
 
