@@ -85,7 +85,6 @@ int main(int argc, char** argv)
         void* data;
         const char* binpath;
         size_t datasz;
-        off_t offset;
         Elf64_Ehdr ehdr;
         Elf64_Phdr segment[PN_XNUM];
         int c, option_index;
@@ -137,7 +136,6 @@ int main(int argc, char** argv)
                 err_exit("* not an ordinary file");
 
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
-        offset = sizeof(Elf64_Ehdr);
 
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
                 err_exit("* Error: Not an ELF file"
@@ -147,9 +145,8 @@ int main(int argc, char** argv)
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
-        memcpy(&segment, data + offset, ehdr.e_phentsize * ehdr.e_phnum);
-        offset += ehdr.e_phentsize * ehdr.e_phnum;
-
+        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
+ 
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
 
