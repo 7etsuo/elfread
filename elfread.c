@@ -11,6 +11,7 @@
 #include <inttypes.h>   /* for uint8 */ 
 #include <string.h>     /* memset */ 
 #include <errno.h> 
+#include <math.h>       /* log */ 
 
 #include <getopt.h>
 #include <elf.h>
@@ -49,6 +50,8 @@ const char* elf_p_type_id[] = {
         #include "./include/p_type_strings.h"
 };
 
+void display_elf_s_section_header(const Elf64_Shdr* section,
+        const Elf64_Ehdr* ehdr, const void* data);
 void display_elf_p_segment_header(const Elf64_Phdr* segment,
         const Elf64_Ehdr* ehdr, const void* data);
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
@@ -160,8 +163,57 @@ int main(int argc, char** argv)
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
 
+        if (g_elf_section_header_flag)
+                display_elf_s_section_header(section, &ehdr, data);
+
         free(data);
         return 0;
+}
+
+
+void display_elf_s_section_header(const Elf64_Shdr* section,
+        const Elf64_Ehdr* ehdr, const void* data)
+{
+        Elf64_Off j, stroff;
+        int nrsz;
+        const char* names[ehdr->e_shnum];
+        const char* dptr;
+
+
+        // TODO: only read Size bytes from e_shstrndx section for string array entrys 
+        stroff = section[ehdr->e_shstrndx].sh_offset;
+        names[0] = dptr = (char*)data + stroff;
+        for (int i = 0, j = 0; i < ehdr->e_shnum; j++) {
+                if (dptr[j] == '\0')
+                        names[++i] = data + stroff + j + 1;
+        }
+
+        for (int i = 0; i < ehdr->e_shnum; i++)
+                printf("[%d]:%s\n", i, names[i]);
+
+        return;
+
+        nrsz = (int)log10((double)ehdr->e_shnum) + 1;
+        printf(
+                "There are %d section headers, starting at offset 0x%.4x:\n"
+                "\n"
+                "Section Headers:\n"
+                "[Nr]   Name              Type             Address           Offset\n"
+                "       Size              EntSize          Flags  Link  Info  Align\n",
+                (int)ehdr->e_shnum, ehdr->e_shoff
+        );
+
+        for (int i = 0; i < ehdr->e_shnum; i++) {
+                printf("[%*d]\n", nrsz, i);
+        }
+
+        printf(
+                "Key to Flags:\n"
+                "  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n"
+                "  L (link order), O (extra OS processing required), G (group), T (TLS),\n"
+                "  C (compressed), x (unknown), o (OS specific), E (exclude),\n"
+                "  l (large), p (processor specific)\n\n"
+        );
 }
 
 
