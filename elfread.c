@@ -198,6 +198,12 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
                 if (segment[i].p_type == PT_INTERP)
                         printf("      [Requesting program interpreter: %s]\n", data + segment[i].p_offset);
         }
+
+        putchar('\n');
+        printf(
+                " Section to Segment mapping:\n"
+                "  Segment Sections...\n"
+        );
 }
 
 
