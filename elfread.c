@@ -51,6 +51,12 @@ void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
+Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
+Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
+Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
+Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr);
+Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
+Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -226,27 +232,41 @@ void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr
 }
 
 
-void display_elf_header(const Elf64_Ehdr* ehdr)
+Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr)
 {
-        unsigned char elf_ei_osabi, elf_ei_data, elf_ei_class;
-        Elf64_Half elf_e_type;
-        Elf64_Word elf_e_version;
-
-        elf_ei_class = ehdr->e_ident[EI_CLASS];
+        Elf64_Half elf_ei_class = ehdr->e_ident[EI_CLASS];
         if (elf_ei_class < ELFCLASS32 || elf_ei_class > ELFCLASS64)
                 elf_ei_class = ELFCLASSNONE;
 
-        elf_ei_data = ehdr->e_ident[EI_DATA];
+        return elf_ei_class;
+}
+
+
+Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr)
+{
+        Elf64_Half elf_ei_data = ehdr->e_ident[EI_DATA];
         if (elf_ei_data < ELFDATA2LSB || elf_ei_data > ELFDATA2MSB)
                 elf_ei_data = ELFDATANONE;
 
-        elf_ei_osabi = ehdr->e_ident[EI_OSABI];
+        return elf_ei_data;
+}
+
+
+Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr)
+{
+        Elf64_Half elf_ei_osabi = ehdr->e_ident[EI_OSABI];
         if (elf_ei_osabi >= ELFOSABI_SOLARIS && elf_ei_osabi <= ELFOSABI_OPENBSD)
                 elf_ei_osabi -= 2;
         else if (elf_ei_osabi >= ELFOSABI_ARM_AEABI)
                 elf_ei_osabi = (ARRAY_SIZE(elf_osabi_id) - 1);
 
-        elf_e_type = ehdr->e_type;
+        return elf_ei_osabi;
+}
+
+
+Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr)
+{
+        Elf64_Half elf_e_type = ehdr->e_type;
         if (elf_e_type > 5 && elf_e_type < ET_LOOS)
                 elf_e_type = ET_NONE;
         else if (elf_e_type >= ET_LOOS && elf_e_type <= ET_HIOS)
@@ -254,15 +274,35 @@ void display_elf_header(const Elf64_Ehdr* ehdr)
         else if (elf_e_type >= ET_HIOS && elf_e_type <= ET_LOPROC)
                 elf_e_type = INDEX_ET_PROC;
 
-        elf_e_version = ehdr->e_version != EV_CURRENT ?
+        return elf_e_type;
+}
+
+
+Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr)
+{
+        Elf64_Word  elf_e_version = ehdr->e_version != EV_CURRENT ?
                 EV_NONE : ehdr->e_version;
+
+        return elf_e_version;
+}
+
+
+void display_elf_header(const Elf64_Ehdr* ehdr)
+{
+        Elf64_Half elf_ei_class = emit_ei_class(ehdr);
+        Elf64_Half elf_ei_data = emit_ei_data(ehdr);
+        Elf64_Half elf_ei_osabi = emit_ei_osabi(ehdr);
+        Elf64_Half elf_e_type = emit_e_type(ehdr);
+        Elf64_Word elf_e_version = emit_e_version(ehdr);
 
         printf(
                 "ELF Header:\n"
                 "  Magic:   "
         );
+
         for (int i = 0; i < EI_NIDENT; i++)
                 printf("%.2x ", ehdr->e_ident[i]);
+
         putchar('\n');
         printf(
                 "  Class:                               %s\n"
