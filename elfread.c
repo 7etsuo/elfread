@@ -27,6 +27,7 @@
 #define         INDEX_ET_OS 6	
 #define         INDEX_ET_PROC 7
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define         STRTABLE_MAX 255
 
 const char* elf_class_id[ELFCLASSNUM] = {
         #include "./include/e_class_strings.h" 
@@ -65,6 +66,8 @@ Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr);
 void get_segment_pflag(char* flagstring, Elf64_Word flags);
+int get_string_table(const char* stringtable[], Elf64_Off stroff,
+        Elf64_Xword sh_sz, const void* data);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -171,25 +174,38 @@ int main(int argc, char** argv)
 }
 
 
+int get_string_table(const char* stringtable[], Elf64_Off stroff,
+        Elf64_Xword sh_sz, const void* data)
+{
+        Elf64_Off j;
+        int nstrings;
+        const char* dataptr;
+
+        stringtable[0] = dataptr = (char*)(data + stroff);
+        for (nstrings = j = 0; j < sh_sz && nstrings < STRTABLE_MAX; j++) {
+                if (dataptr[j] == '\0')
+                        stringtable[++nstrings] = dataptr + j + 1;
+        }
+        return nstrings;
+}
+
+
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data)
 {
         Elf64_Off j, stroff;
-        int nrsz;
-        const char* names[ehdr->e_shnum];
-        const char* dptr;
+        int nrsz, nstrings;
+        const char* stringtable[STRTABLE_MAX];
 
+        nstrings = get_string_table(
+                stringtable,
+                section[ehdr->e_shstrndx].sh_offset,
+                section[ehdr->e_shstrndx].sh_size,
+                data
+        );
 
-        // TODO: only read Size bytes from e_shstrndx section for string array entrys 
-        stroff = section[ehdr->e_shstrndx].sh_offset;
-        names[0] = dptr = (char*)data + stroff;
-        for (int i = 0, j = 0; i < ehdr->e_shnum; j++) {
-                if (dptr[j] == '\0')
-                        names[++i] = data + stroff + j + 1;
-        }
-
-        for (int i = 0; i < ehdr->e_shnum; i++)
-                printf("[%d]:%s\n", i, names[i]);
+        for (int i = 0; i < nstrings; i++)
+                printf("[%d]:%s\n", i, stringtable[i]);
 
         return;
 
