@@ -147,8 +147,8 @@ int main(int argc, char** argv)
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
-        memcpy(&segment, data + offset, sizeof(Elf64_Phdr) * ehdr.e_phnum);
-        offset += sizeof(Elf64_Phdr) * ehdr.e_phnum;
+        memcpy(&segment, data + offset, ehdr.e_phentsize * ehdr.e_phnum);
+        offset += ehdr.e_phentsize * ehdr.e_phnum;
 
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
