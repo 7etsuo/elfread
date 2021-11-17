@@ -146,6 +146,8 @@ int main(int argc, char** argv)
                 err_exit("* not an ordinary file");
 
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
+        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
+        memcpy(&section, data + ehdr.e_shoff, ehdr.e_shentsize * ehdr.e_shnum);
 
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
                 err_exit("* Error: Not an ELF file"
@@ -154,8 +156,6 @@ int main(int argc, char** argv)
 
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
-
-        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
 
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
