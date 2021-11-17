@@ -45,16 +45,23 @@ const char* elf_e_machine_id[EM_NUM] = {
 const char* elf_e_version_id[EV_NUM] = {
         #include "./include/e_version_strings.h" 
 };
+const char* elf_p_type_id[] = {
+        #include "./include/p_type_strings.h"
+};
 
+void display_elf_p_segment_header(const Elf64_Phdr* segment,
+        const Elf64_Ehdr* ehdr, const void* data);
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
+off_t get_p_type_offset(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr);
+void get_segment_pflag(char* flagstring, Elf64_Word flags);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -78,7 +85,9 @@ int main(int argc, char** argv)
         void* data;
         const char* binpath;
         size_t datasz;
+        off_t offset;
         Elf64_Ehdr ehdr;
+        Elf64_Phdr segment[PN_XNUM];
         int c, option_index;
 
         while (1) {
@@ -128,6 +137,8 @@ int main(int argc, char** argv)
                 err_exit("* not an ordinary file");
 
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
+        offset = sizeof(Elf64_Ehdr);
+
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
                 err_exit("* Error: Not an ELF file"
                         "- it has the wrong magic bytes at the start"
@@ -136,8 +147,63 @@ int main(int argc, char** argv)
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
+        memcpy(&segment, data + offset, ehdr.e_phentsize * ehdr.e_phnum);
+        offset += ehdr.e_phentsize * ehdr.e_phnum;
+
+        if (g_elf_prog_header_flag)
+                display_elf_p_segment_header(segment, &ehdr, data);
+
         free(data);
         return 0;
+}
+
+
+void display_elf_p_segment_header(const Elf64_Phdr* segment,
+        const Elf64_Ehdr* ehdr, const void* data)
+{
+        Elf64_Half elf_e_type = emit_e_type(ehdr);
+        off_t p_type_offs;
+
+        printf(
+                "\nElf file type is %s\n"
+                "Entry point 0x%x\n"
+                "There are %d program headers, starting at offset %d\n"
+                "\n",
+                elf_e_type_id[elf_e_type],
+                (int)ehdr->e_entry,
+                (int)ehdr->e_phnum,
+                (int)ehdr->e_phentsize
+        );
+
+        printf(
+                "Program Headers:\n"
+                "  Type           Offset             VirtAddr           PhysAddr          \n"
+                "                 FileSiz            MemSiz              Flags  Align     \n"
+        );
+
+        for (size_t i = 0; i < ehdr->e_phnum; i++) {
+                p_type_offs = get_p_type_offset(segment[i].p_type);
+                printf(
+                        "  %-12s\t 0x%.16x 0x%.16x 0x%.16x\n"
+                        "                 0x%.16x 0x%.16x  %c%c%c    0x%x\n",
+                        elf_p_type_id[p_type_offs],
+                        segment[i].p_offset, segment[i].p_vaddr, segment[i].p_paddr,
+                        segment[i].p_filesz, segment[i].p_memsz,
+                        (segment[i].p_flags & PF_R ? 'R' : ' '),
+                        (segment[i].p_flags & PF_W ? 'W' : ' '),
+                        (segment[i].p_flags & PF_X ? 'E' : ' '),
+                        segment[i].p_align
+                );
+
+                if (segment[i].p_type == PT_INTERP)
+                        printf("      [Requesting program interpreter: %s]\n", data + segment[i].p_offset);
+        }
+
+        putchar('\n');
+        printf(
+                " Section to Segment mapping:\n"
+                "  Segment Sections...\n"
+        );
 }
 
 
@@ -325,4 +391,62 @@ int write_mem_to_file(const char* filename, const void* data, size_t size)
 err:
         fclose(output_file);
         return success;
+}
+
+
+off_t get_p_type_offset(Elf64_Word type)
+{
+        off_t offs;
+        switch (type)
+        {
+        case 0:
+                offs = 0;
+                break;
+        case 1:
+                offs = 1;
+                break;
+        case 2:
+                offs = 2;
+                break;
+        case 3:
+                offs = 3;
+                break;
+        case 4:
+                offs = 4;
+                break;
+        case 5:
+                offs = 5;
+                break;
+        case 6:
+                offs = 6;
+                break;
+        case 7:
+                offs = 7;
+                break;
+        case 8:
+                offs = 8;
+                break;
+        case 0x60000000:
+                offs = 9;
+                break;
+        case 0x6474e550:
+                offs = 10;
+                break;
+        case 0x6474e551:
+                offs = 11;
+                break;
+        case 0x6474e552:
+                offs = 12;
+                break;
+        case 0x6ffffffa:
+                offs = 13;
+                break;
+        case 0x6ffffffb:
+                offs = 14;
+                break;
+        case 0x6fffffff:
+                offs = 15;
+        }
+
+        return offs;
 }
