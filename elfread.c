@@ -158,64 +158,6 @@ int main(int argc, char** argv)
 }
 
 
-off_t get_p_type_offset(Elf64_Word type)
-{
-        off_t offs;
-        switch (type)
-        {
-        case 0:
-                offs = 0;
-                break;
-        case 1:
-                offs = 1;
-                break;
-        case 2:
-                offs = 2;
-                break;
-        case 3:
-                offs = 3;
-                break;
-        case 4:
-                offs = 4;
-                break;
-        case 5:
-                offs = 5;
-                break;
-        case 6:
-                offs = 6;
-                break;
-        case 7:
-                offs = 7;
-                break;
-        case 8:
-                offs = 8;
-                break;
-        case 0x60000000:
-                offs = 9;
-                break;
-        case 0x6474e550:
-                offs = 10;
-                break;
-        case 0x6474e551:
-                offs = 11;
-                break;
-        case 0x6474e552:
-                offs = 12;
-                break;
-        case 0x6ffffffa:
-                offs = 13;
-                break;
-        case 0x6ffffffb:
-                offs = 14;
-                break;
-        case 0x6fffffff:
-                offs = 15;
-        }
-
-        return offs;
-}
-
-
 void display_elf_p_segment_header(const Elf64_Phdr* segment,
         const Elf64_Ehdr* ehdr, const void* data)
 {
@@ -443,4 +385,62 @@ int write_mem_to_file(const char* filename, const void* data, size_t size)
 err:
         fclose(output_file);
         return success;
+}
+
+
+off_t get_p_type_offset(Elf64_Word type)
+{
+        off_t offs;
+        switch (type)
+        {
+        case 0:
+                offs = 0;
+                break;
+        case 1:
+                offs = 1;
+                break;
+        case 2:
+                offs = 2;
+                break;
+        case 3:
+                offs = 3;
+                break;
+        case 4:
+                offs = 4;
+                break;
+        case 5:
+                offs = 5;
+                break;
+        case 6:
+                offs = 6;
+                break;
+        case 7:
+                offs = 7;
+                break;
+        case 8:
+                offs = 8;
+                break;
+        case 0x60000000:
+                offs = 9;
+                break;
+        case 0x6474e550:
+                offs = 10;
+                break;
+        case 0x6474e551:
+                offs = 11;
+                break;
+        case 0x6474e552:
+                offs = 12;
+                break;
+        case 0x6ffffffa:
+                offs = 13;
+                break;
+        case 0x6ffffffb:
+                offs = 14;
+                break;
+        case 0x6fffffff:
+                offs = 15;
+        }
+
+        return offs;
 }
