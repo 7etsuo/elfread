@@ -45,12 +45,15 @@ const char* elf_e_machine_id[EM_NUM] = {
 const char* elf_e_version_id[EV_NUM] = {
         #include "./include/e_version_strings.h" 
 };
+const char* elf_p_type_id[] = {
+        #include "./include/p_type_strings.h"
+};
 
-int emit_p_type_offset(int val);
 void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr);
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
+off_t get_p_type_offset(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
@@ -143,92 +146,125 @@ int main(int argc, char** argv)
                 display_elf_header(&ehdr);
 
         memcpy(&phdr, data + offset, sizeof(Elf64_Phdr) * ehdr.e_phnum);
-
         offset += sizeof(Elf64_Phdr) * ehdr.e_phnum;
+
+        if (g_elf_prog_header_flag)
+                display_elf_p_segment_header(phdr, &ehdr);
 
         free(data);
         return 0;
 }
 
 
-int emit_p_type_offset(int val)
+off_t get_p_type_offset(Elf64_Word type)
 {
-        int code;
-        switch (val)
+        off_t offs;
+        switch (type)
         {
         case 0:
-                code = 0;
+                offs = 0;
                 break;
         case 1:
-                code = 1;
+                offs = 1;
                 break;
         case 2:
-                code = 2;
+                offs = 2;
                 break;
         case 3:
-                code = 3;
+                offs = 3;
                 break;
         case 4:
-                code = 4;
+                offs = 4;
                 break;
         case 5:
-                code = 5;
+                offs = 5;
                 break;
         case 6:
-                code = 6;
+                offs = 6;
                 break;
         case 7:
-                code = 7;
+                offs = 7;
                 break;
         case 8:
-                code = 8;
+                offs = 8;
                 break;
         case 0x60000000:
-                code = 9;
+                offs = 9;
                 break;
         case 0x6474e550:
-                code = 10;
+                offs = 10;
                 break;
         case 0x6474e551:
-                code = 11;
+                offs = 11;
                 break;
         case 0x6474e552:
-                code = 12;
+                offs = 12;
                 break;
         case 0x6ffffffa:
-                code = 13;
+                offs = 13;
                 break;
         case 0x6ffffffb:
-                code = 14;
+                offs = 14;
                 break;
         case 0x6fffffff:
-                code = 15;
-                break;
-        case 0x70000000:
-                code = 16;
-                break;
-        case 0x7fffffff:
-                code = 17;
-                break;
-        default:
-                code = -1;
+                offs = 15;
         }
 
-        return code;
+        return offs;
 }
 
 
 void display_elf_p_segment_header(const Elf64_Phdr* phdr, const Elf64_Ehdr* ehdr)
 {
+        Elf64_Half elf_e_type = emit_e_type(ehdr);
+        off_t p_type_offs;
+
         printf(
-                "Elf file type is DYN (Shared object file)\n"
-                "Entry point 0x31a0\n"
-                "There are 11 program headers, starting at offset 64\n"
-                "\n"
-                "Program Headers:\n"
-                "  Type           Offset             VirtAddr           PhysAddr\n"
-                "                 FileSiz            MemSiz              Flags  Align\n"
+                "\nElf file type is %s\n"
+                "Entry point 0x%x\n"
+                "There are %d program headers, starting at offset %d\n"
+                "\n",
+                elf_e_type_id[elf_e_type],
+                (int)ehdr->e_entry,
+                (int)ehdr->e_phnum,
+                (int)ehdr->e_phentsize
         );
+
+        printf(
+                "Program Headers:\n"
+                "  Type           Offset             VirtAddr           PhysAddr          \n"
+                "                 FileSiz            MemSiz              Flags  Align     \n"
+                "  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040\n"
+                "                 0x0000000000000268 0x0000000000000268  R      0x8       \n"
+                "  INTERP         0x00000000000002a8 0x00000000000002a8 0x00000000000002a8\n"
+                "                 0x000000000000001c 0x000000000000001c  R      0x1       \n"
+                "      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]      \n"
+                "  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000\n"
+                "                 0x00000000000022a0 0x00000000000022a0  R      0x1000    \n"
+                "  LOAD           0x0000000000003000 0x0000000000003000 0x0000000000003000\n"
+                "                 0x0000000000000c79 0x0000000000000c79  R E    0x1000    \n"
+                "  LOAD           0x0000000000004000 0x0000000000004000 0x0000000000004000\n"
+                "                 0x0000000000001970 0x0000000000001970  R      0x1000    \n"
+                "  LOAD           0x0000000000005de8 0x0000000000006de8 0x0000000000006de8\n"
+                "                 0x0000000000000bd8 0x0000000000000bf0  RW     0x1000    \n"
+                "  DYNAMIC        0x0000000000005df8 0x0000000000006df8 0x0000000000006df8\n"
+                "                 0x00000000000001e0 0x00000000000001e0  RW     0x8       \n"
+                "  NOTE           0x00000000000002c4 0x00000000000002c4 0x00000000000002c4\n"
+                "                 0x0000000000000044 0x0000000000000044  R      0x4       \n"
+                "  GNU_EH_FRAME   0x0000000000005760 0x0000000000005760 0x0000000000005760\n"
+                "                 0x0000000000000064 0x0000000000000064  R      0x4       \n"
+                "  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000\n"
+                "                 0x0000000000000000 0x0000000000000000  RW     0x10      \n"
+                "  GNU_RELRO      0x0000000000005de8 0x0000000000006de8 0x0000000000006de8\n"
+                "                 0x0000000000000218 0x0000000000000218  R      0x1       \n\n"
+        );
+
+        for (size_t i = 0; i < ehdr->e_phnum; i++) {
+                p_type_offs = get_p_type_offset(phdr[i].p_type);
+                printf(
+                        "  %s\n", elf_p_type_id[p_type_offs]
+                );
+        }
 }
 
 
