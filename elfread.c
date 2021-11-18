@@ -450,8 +450,7 @@ err:
 
 int get_s_type_offset(Elf64_Word type)
 {
-        off_t offs;
-
+        int offs;
         switch (type)
         {
         case SHT_PROGBITS:
