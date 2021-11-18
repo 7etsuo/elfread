@@ -1,24 +1,26 @@
 /* elfread.c
  * This tool will display information about ELF files.
  * Based on the GNU development tool readelf
- *
+ * 
+ * usage:
+ * $ gcc elfread.c -o elfread -lm 
+ * $ ./elfread -hlS /bin/ls
+ * 
  * the-scientist@rootstorm.com
  * https://www.rootstorm.com
  */
 
-#include <stdio.h>      /* for printf */
-#include <stdlib.h>     /* for exit */
-#include <inttypes.h>   /* for uint8 */ 
-#include <string.h>     /* memset */ 
-#include <errno.h> 
-#include <math.h>       /* log */ 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <inttypes.h>
+#include <string.h>
+#include <errno.h>
+#include <math.h>
 #include <getopt.h>
 #include <elf.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdbool.h>
-
 #include "./include/strings_global.h"
 
 #define         err_exit(msg) do { perror(msg); \
@@ -29,6 +31,21 @@
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define         STRTABLE_MAX 255
 
+const char* g_help_menu = {
+        "Usage: elfread <option(s)> elf-file(s)\n"
+        " Display information about the contents of ELF format files\n"
+        " Options are:\n"
+        "\n"
+        "-h --file-header               Display the ELF file header\n"
+        "-l --program-headers           Display the program headers\n"
+        "   --segments                                             \n"
+        "-S --section-headers           Displays the information contained \n"
+        "   --sections                  in the file's section headers\n"
+        "-e --headers                   Display all the headers -hlS\n"
+        "-H --help                      Display this information\n\n"
+        "                               the-scientist@rootstorm.com\n"
+        "                               https://www.rootstorm.com\n\n"
+};
 const char* elf_class_id[ELFCLASSNUM] = {
         #include "./include/e_class_strings.h" 
 };
@@ -54,6 +71,11 @@ const char* elf_s_type_id[] = {
         #include "./include/s_type_strings.h"
 };
 
+static int g_elf_file_header_flag = 0;
+static int g_elf_prog_header_flag = 0;
+static int g_elf_section_header_flag = 0;
+static int g_elf_help_flag = 0;
+
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data);
 void display_elf_p_segment_header(const Elf64_Phdr* segment,
@@ -73,37 +95,15 @@ void get_segment_pflag(char* flagstring, Elf64_Word flags);
 int get_string_table(const char* stringtable[], Elf64_Off stroff,
         Elf64_Xword sh_sz, const void* data);
 
-const char* g_help_menu = {
-        "Usage: elfread <option(s)> elf-file(s)\n"
-        " Display information about the contents of ELF format files\n"
-        " Options are:\n"
-        "\n"
-        "-h --file-header               Display the ELF file header\n"
-        "-l --program-headers           Display the program headers\n"
-        "   --segments                                             \n"
-        "-S --section-headers           Displays the information contained \n"
-        "   --sections                  in the file's section headers\n"
-        "-e --headers                   Display all the headers -hlS\n"
-        "-H --help                      Display this information\n\n"
-        "                               the-scientist@rootstorm.com\n"
-        "                               https://www.rootstorm.com\n\n"
-};
-
-static int g_elf_file_header_flag = 0;
-static int g_elf_prog_header_flag = 0;
-static int g_elf_section_header_flag = 0;
-static int g_elf_help_flag = 0;
-
 int main(int argc, char** argv)
 {
         void* data;
         const char* binpath;
+        int c, option_index;
         size_t datasz;
         Elf64_Ehdr ehdr;
         Elf64_Phdr segment[PN_XNUM];
         Elf64_Shdr section[SHN_LORESERVE];
-
-        int c, option_index;
 
         while (1) {
                 option_index = 0;
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
                     {  0,                0,           0,  0  }
                 };
 
-                c = getopt_long(argc, argv, "hlHSe",
+                c = getopt_long(argc, argv, "hlSeH",
                         long_options, &option_index);
                 if (c == -1) {
                         g_elf_help_flag = optind == 1 ?
@@ -184,8 +184,6 @@ int main(int argc, char** argv)
         return 0;
 }
 
-
-
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data)
 {
@@ -214,22 +212,22 @@ void display_elf_s_section_header(const Elf64_Shdr* section,
                         16, section[i].sh_addr, 16, section[i].sh_offset,
                         nrsz, spc,
                         16, section[i].sh_size, 16, section[i].sh_entsize,
-                        (section[i].sh_flags & SHF_WRITE ? 'W' : ' '),
-                        (section[i].sh_flags & SHF_ALLOC ? 'A' : ' '),
-                        (section[i].sh_flags & SHF_EXECINSTR ? 'X' : ' '),
-                        (section[i].sh_flags & SHF_MERGE ? 'M' : ' '),
-                        (section[i].sh_flags & SHF_STRINGS ? 'S' : ' '),
-                        (section[i].sh_flags & SHF_INFO_LINK ? 'I' : ' '),
-                        (section[i].sh_flags & SHF_LINK_ORDER ? 'L' : ' '),
-                        (section[i].sh_flags & SHF_OS_NONCONFORMING ? 'O' : ' '),
-                        (section[i].sh_flags & SHF_GROUP ? 'G' : ' '),
-                        (section[i].sh_flags & SHF_TLS ? 'T' : ' '),
-                        (section[i].sh_flags & SHF_COMPRESSED ? 'C' : ' '),
-                        (section[i].sh_flags & (1 << 12) ? 'x' : ' '),
-                        (section[i].sh_flags & SHF_MASKOS ? 'o' : ' '),
-                        (section[i].sh_flags & SHF_EXCLUDE ? 'E' : ' '),
-                        (section[i].sh_flags & SHF_ORDERED ? 'l' : ' '),
-                        (section[i].sh_flags & SHF_MASKPROC ? 'p' : ' '),
+                        ( section[i].sh_flags & SHF_WRITE            ? 'W' : ' ' ),
+                        ( section[i].sh_flags & SHF_ALLOC            ? 'A' : ' ' ),
+                        ( section[i].sh_flags & SHF_EXECINSTR        ? 'X' : ' ' ),
+                        ( section[i].sh_flags & SHF_MERGE            ? 'M' : ' ' ),
+                        ( section[i].sh_flags & SHF_STRINGS          ? 'S' : ' ' ),
+                        ( section[i].sh_flags & SHF_INFO_LINK        ? 'I' : ' ' ),
+                        ( section[i].sh_flags & SHF_LINK_ORDER       ? 'L' : ' ' ),
+                        ( section[i].sh_flags & SHF_OS_NONCONFORMING ? 'O' : ' ' ),
+                        ( section[i].sh_flags & SHF_GROUP            ? 'G' : ' ' ),
+                        ( section[i].sh_flags & SHF_TLS              ? 'T' : ' ' ),
+                        ( section[i].sh_flags & SHF_COMPRESSED       ? 'C' : ' ' ),
+                        ( section[i].sh_flags & (1 << 12)            ? 'x' : ' ' ),
+                        ( section[i].sh_flags & SHF_MASKOS           ? 'o' : ' ' ),
+                        ( section[i].sh_flags & SHF_EXCLUDE          ? 'E' : ' ' ),
+                        ( section[i].sh_flags & SHF_ORDERED          ? 'l' : ' ' ),
+                        ( section[i].sh_flags & SHF_MASKPROC         ? 'p' : ' ' ),
                         section[i].sh_link, section[i].sh_info, section[i].sh_addralign
                 );
         }
@@ -242,7 +240,6 @@ void display_elf_s_section_header(const Elf64_Shdr* section,
                 "  l (large), p (processor specific)\n\n"
         );
 }
-
 
 void display_elf_p_segment_header(const Elf64_Phdr* segment,
         const Elf64_Ehdr* ehdr, const void* data)
@@ -275,9 +272,9 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
                         elf_p_type_id[p_type_offs],
                         segment[i].p_offset, segment[i].p_vaddr, segment[i].p_paddr,
                         segment[i].p_filesz, segment[i].p_memsz,
-                        (segment[i].p_flags & PF_R ? 'R' : ' '),
-                        (segment[i].p_flags & PF_W ? 'W' : ' '),
-                        (segment[i].p_flags & PF_X ? 'E' : ' '),
+                        ( segment[i].p_flags & PF_R ? 'R' : ' ' ),
+                        ( segment[i].p_flags & PF_W ? 'W' : ' ' ),
+                        ( segment[i].p_flags & PF_X ? 'E' : ' ' ),
                         segment[i].p_align
                 );
 
@@ -292,7 +289,6 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
         );
 }
 
-
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr)
 {
         Elf64_Half elf_ei_class = ehdr->e_ident[EI_CLASS];
@@ -302,7 +298,6 @@ Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr)
         return elf_ei_class;
 }
 
-
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr)
 {
         Elf64_Half elf_ei_data = ehdr->e_ident[EI_DATA];
@@ -311,7 +306,6 @@ Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr)
 
         return elf_ei_data;
 }
-
 
 Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr)
 {
@@ -323,7 +317,6 @@ Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr)
 
         return elf_ei_osabi;
 }
-
 
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr)
 {
@@ -338,7 +331,6 @@ Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr)
         return elf_e_type;
 }
 
-
 Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr)
 {
         Elf64_Word  elf_e_version = ehdr->e_version != EV_CURRENT ?
@@ -346,7 +338,6 @@ Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr)
 
         return elf_e_version;
 }
-
 
 void display_elf_header(const Elf64_Ehdr* ehdr)
 {
@@ -392,11 +383,12 @@ void display_elf_header(const Elf64_Ehdr* ehdr)
                 elf_e_type_id[elf_e_type],
                 ehdr->e_machine >= EM_NUM ? "special\n" : elf_e_machine_id[ehdr->e_machine],
                 ehdr->e_version, elf_e_version_id[elf_e_version],
-                (int)ehdr->e_entry, (int)ehdr->e_phoff, (int)ehdr->e_shoff, (int)ehdr->e_flags, (int)ehdr->e_ehsize,
-                (int)ehdr->e_phentsize, (int)ehdr->e_phnum, (int)ehdr->e_shentsize, (int)ehdr->e_shnum, (int)ehdr->e_shstrndx
+                (int)ehdr->e_entry, (int)ehdr->e_phoff, (int)ehdr->e_shoff, 
+                (int)ehdr->e_flags, (int)ehdr->e_ehsize,
+                (int)ehdr->e_phentsize, (int)ehdr->e_phnum, (int)ehdr->e_shentsize, 
+                (int)ehdr->e_shnum, (int)ehdr->e_shstrndx
         );
 }
-
 
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
 {
@@ -442,7 +434,6 @@ err_ret:
         return 0;
 }
 
-
 int write_mem_to_file(const char* filename, const void* data, size_t size)
 {
         struct stat sb;
@@ -478,7 +469,6 @@ err:
         fclose(output_file);
         return success;
 }
-
 
 int get_s_type_index(Elf64_Word type)
 {
@@ -586,7 +576,6 @@ int get_s_type_index(Elf64_Word type)
         }
         return offs;
 }
-
 
 int get_p_type_index(Elf64_Word type)
 {
