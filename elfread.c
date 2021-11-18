@@ -11,6 +11,7 @@
 #include <inttypes.h>   /* for uint8 */ 
 #include <string.h>     /* memset */ 
 #include <errno.h> 
+#include <math.h>       /* log */ 
 
 #include <getopt.h>
 #include <elf.h>
@@ -26,6 +27,7 @@
 #define         INDEX_ET_OS 6	
 #define         INDEX_ET_PROC 7
 #define         ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define         STRTABLE_MAX 255
 
 const char* elf_class_id[ELFCLASSNUM] = {
         #include "./include/e_class_strings.h" 
@@ -48,12 +50,18 @@ const char* elf_e_version_id[EV_NUM] = {
 const char* elf_p_type_id[] = {
         #include "./include/p_type_strings.h"
 };
+const char* elf_s_type_id[] = {
+        #include "./include/s_type_strings.h"
+};
 
+void display_elf_s_section_header(const Elf64_Shdr* section,
+        const Elf64_Ehdr* ehdr, const void* data);
 void display_elf_p_segment_header(const Elf64_Phdr* segment,
         const Elf64_Ehdr* ehdr, const void* data);
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
+int get_s_type_index(Elf64_Word type);
 int get_p_type_index(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
@@ -62,6 +70,8 @@ Elf64_Half emit_ei_osabi(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Word emit_e_version(const Elf64_Ehdr* ehdr);
 void get_segment_pflag(char* flagstring, Elf64_Word flags);
+int get_string_table(const char* stringtable[], Elf64_Off stroff,
+        Elf64_Xword sh_sz, const void* data);
 
 const char* g_help_menu = {
         "Usage: elfread <option(s)> elf-file(s)\n"
@@ -70,7 +80,9 @@ const char* g_help_menu = {
         "\n"
         "-h --file-header               Display the ELF file header\n"
         "-l --program-headers           Display the program headers\n"
-        "   --segments                  An alias for --program - headers\n"
+        "   --segments                                             \n"
+        "-S --section-headers           Displays the information contained \n"
+        "   --sections                  in the file's section headers\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
         "                               https://www.rootstorm.com\n\n"
@@ -78,6 +90,7 @@ const char* g_help_menu = {
 
 static int g_elf_file_header_flag = 0;
 static int g_elf_prog_header_flag = 0;
+static int g_elf_section_header_flag = 0;
 static int g_elf_help_flag = 0;
 
 int main(int argc, char** argv)
@@ -87,19 +100,23 @@ int main(int argc, char** argv)
         size_t datasz;
         Elf64_Ehdr ehdr;
         Elf64_Phdr segment[PN_XNUM];
+        Elf64_Shdr section[SHN_LORESERVE];
+
         int c, option_index;
 
         while (1) {
                 option_index = 0;
                 static struct option long_options[] = {
-                    {"file-header",     no_argument, 0, 'h' },
-                    {"program-headers", no_argument, 0, 'l' },
-                    {"segments",        no_argument, 0, 'l' },
-                    {"help",            no_argument, 0, 'H' },
-                    { 0,                0,           0,  0  }
+                    { "file-header",     no_argument, 0, 'h' },
+                    { "program-headers", no_argument, 0, 'l' },
+                    { "segments",        no_argument, 0, 'l' },
+                    { "section-headers", no_argument, 0, 'S' },
+                    { "sections",        no_argument, 0, 'S' },
+                    { "help",            no_argument, 0, 'H' },
+                    {  0,                0,           0,  0  }
                 };
 
-                c = getopt_long(argc, argv, "hlH",
+                c = getopt_long(argc, argv, "hlHS",
                         long_options, &option_index);
                 if (c == -1) {
                         g_elf_help_flag = optind == 1 ?
@@ -113,6 +130,9 @@ int main(int argc, char** argv)
                         break;
                 case 'l':
                         g_elf_prog_header_flag = 1;
+                        break;
+                case 'S':
+                        g_elf_section_header_flag = 1;
                         break;
                 case 'H':
                 case '?':
@@ -136,6 +156,8 @@ int main(int argc, char** argv)
                 err_exit("* not an ordinary file");
 
         memcpy(&ehdr, data, sizeof(Elf64_Ehdr));
+        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
+        memcpy(&section, data + ehdr.e_shoff, ehdr.e_shentsize * ehdr.e_shnum);
 
         if (strncmp(ELFMAG, (const char*)&ehdr.e_ident[EI_MAG0], SELFMAG) != 0)
                 err_exit("* Error: Not an ELF file"
@@ -145,13 +167,73 @@ int main(int argc, char** argv)
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
-        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
-
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
 
+        if (g_elf_section_header_flag)
+                display_elf_s_section_header(section, &ehdr, data);
+
         free(data);
         return 0;
+}
+
+
+
+void display_elf_s_section_header(const Elf64_Shdr* section,
+        const Elf64_Ehdr* ehdr, const void* data)
+{
+        Elf64_Off stroff = section[ehdr->e_shstrndx].sh_offset;
+        int nrsz = (int)log10((double)ehdr->e_shnum) + 1;
+        char* nr = "Nr";
+        char* spc = " ";
+
+        printf(
+                "There are %d section headers, starting at offset 0x%.4x:\n"
+                "\n"
+                "Section Headers:\n"
+                "[%*s] Name                 Type             Address          Offset\n"
+                " %*s  Size                 EntSize          Flags            Link  Info  Align\n",
+                (int)ehdr->e_shnum, ehdr->e_shoff,
+                nrsz, nr, nrsz, spc
+        );
+
+        for (int i = 0; i < ehdr->e_shnum; i++) {
+                printf(
+                        "[%*d] %-*s %-*s %-.*x %-.*x\n"
+                        " %*s  %-.*x     %-.*x %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %4d  %4d  %5d\n"
+                        , nrsz, i,
+                        20, (data + stroff + section[i].sh_name),
+                        16, elf_s_type_id[get_s_type_index(section[i].sh_type)],
+                        16, section[i].sh_addr, 16, section[i].sh_offset,
+                        nrsz, spc,
+                        16, section[i].sh_size, 16, section[i].sh_entsize,
+                        (section[i].sh_flags & SHF_WRITE ? 'W' : ' '),
+                        (section[i].sh_flags & SHF_ALLOC ? 'A' : ' '),
+                        (section[i].sh_flags & SHF_EXECINSTR ? 'X' : ' '),
+                        (section[i].sh_flags & SHF_MERGE ? 'M' : ' '),
+                        (section[i].sh_flags & SHF_STRINGS ? 'S' : ' '),
+                        (section[i].sh_flags & SHF_INFO_LINK ? 'I' : ' '),
+                        (section[i].sh_flags & SHF_LINK_ORDER ? 'L' : ' '),
+                        (section[i].sh_flags & SHF_OS_NONCONFORMING ? 'O' : ' '),
+                        (section[i].sh_flags & SHF_GROUP ? 'G' : ' '),
+                        (section[i].sh_flags & SHF_TLS ? 'T' : ' '),
+                        (section[i].sh_flags & SHF_COMPRESSED ? 'C' : ' '),
+                        (section[i].sh_flags & (1 << 12) ? 'x' : ' '),
+                        (section[i].sh_flags & SHF_MASKOS ? 'o' : ' '),
+                        (section[i].sh_flags & SHF_EXCLUDE ? 'E' : ' '),
+                        (section[i].sh_flags & SHF_ORDERED ? 'l' : ' '),
+                        (section[i].sh_flags & SHF_MASKPROC ? 'p' : ' '),
+                        section[i].sh_link, section[i].sh_info, section[i].sh_addralign
+                );
+        }
+
+        printf(
+                "Key to Flags:\n"
+                "  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n"
+                "  L (link order), O (extra OS processing required), G (group), T (TLS),\n"
+                "  C (compressed), x (unknown), o (OS specific), E (exclude),\n"
+                "  l (large), p (processor specific)\n\n"
+        );
 }
 
 
@@ -388,6 +470,114 @@ int write_mem_to_file(const char* filename, const void* data, size_t size)
 err:
         fclose(output_file);
         return success;
+}
+
+
+int get_s_type_index(Elf64_Word type)
+{
+        int offs;
+        switch (type)
+        {
+        case SHT_PROGBITS:
+                offs = 1;
+                break;
+        case SHT_SYMTAB:
+                offs = 2;
+                break;
+        case SHT_STRTAB:
+                offs = 3;
+                break;
+        case SHT_RELA:
+                offs = 4;
+                break;
+        case SHT_HASH:
+                offs = 5;
+                break;
+        case SHT_DYNAMIC:
+                offs = 6;
+                break;
+        case SHT_NOTE:
+                offs = 7;
+                break;
+        case SHT_NOBITS:
+                offs = 8;
+                break;
+        case SHT_REL:
+                offs = 9;
+                break;
+        case SHT_SHLIB:
+                offs = 10;
+                break;
+        case SHT_DYNSYM:
+                offs = 11;
+                break;
+        case SHT_INIT_ARRAY:
+                offs = 12;
+                break;
+        case SHT_FINI_ARRAY:
+                offs = 13;
+                break;
+        case SHT_PREINIT_ARRAY:
+                offs = 14;
+                break;
+        case SHT_GROUP:
+                offs = 15;
+                break;
+        case SHT_SYMTAB_SHNDX:
+                offs = 16;
+                break;
+        case SHT_NUM:
+                offs = 17;
+                break;
+        case SHT_LOOS:
+                offs = 18;
+                break;
+        case SHT_GNU_ATTRIBUTES:
+                offs = 19;
+                break;
+        case SHT_GNU_HASH:
+                offs = 20;
+                break;
+        case SHT_GNU_LIBLIST:
+                offs = 21;
+                break;
+        case SHT_CHECKSUM:
+                offs = 22;
+                break;
+        case SHT_LOSUNW:
+                offs = 23;
+                break;
+        case SHT_SUNW_COMDAT:
+                offs = 24;
+                break;
+        case SHT_SUNW_syminfo:
+                offs = 25;
+                break;
+        case SHT_GNU_verdef:
+                offs = 26;
+                break;
+        case SHT_GNU_verneed:
+                offs = 27;
+                break;
+        case SHT_GNU_versym:
+                offs = 28;
+                break;
+        case SHT_LOPROC:
+                offs = 29;
+                break;
+        case SHT_HIPROC:
+                offs = 30;
+                break;
+        case SHT_LOUSER:
+                offs = 31;
+                break;
+        case SHT_HIUSER:
+                offs = 32;
+                break;
+        default:
+                offs = 0;
+        }
+        return offs;
 }
 
 

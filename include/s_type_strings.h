@@ -1,0 +1,38 @@
+#ifndef S_TYPE_STRINGS
+#define S_TYPE_STRINGS
+
+"NULL",
+"PROGBITS",
+"SYMTAB",
+"STRTAB",
+"RELA",
+"HASH",
+"DYNAMIC",
+"NOTE",
+"NOBITS",
+"REL",
+"SHLIB",
+"DYNSYM",
+"INIT_ARRAY",
+"FINI_ARRAY",
+"PREINIT_ARRAY",
+"GROUP",
+"SYMTAB_SHNDX",
+"NUM",
+"LOOS",
+"GNU_ATTRIBUTE",
+"GNU_HASH",
+"GNU_LIBLIST",
+"CHECKSUM",
+"LOSUNW",
+"SUNW_COMDAT",
+"SUNW_syminfo",
+"GNU_verdef",
+"GNU_verneed",
+"GNU_versym",
+"LOPROC",
+"HIPROC",
+"LOUSER",
+"HIUSER"
+
+#endif // S_TYPE_STRINGS
