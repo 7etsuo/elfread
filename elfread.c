@@ -50,6 +50,9 @@ const char* elf_e_version_id[EV_NUM] = {
 const char* elf_p_type_id[] = {
         #include "./include/p_type_strings.h"
 };
+const char* elf_s_type_id[] = {
+        #include "./include/s_type_strings.h"
+};
 
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data);
@@ -59,6 +62,7 @@ int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
 off_t get_p_type_offset(Elf64_Word type);
+Elf64_Off get_s_type_offset(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
@@ -174,53 +178,28 @@ int main(int argc, char** argv)
 }
 
 
-int get_string_table(const char* stringtable[], Elf64_Off stroff,
-        Elf64_Xword sh_sz, const void* data)
-{
-        Elf64_Off j;
-        int nstrings;
-        const char* dataptr;
-
-        stringtable[0] = dataptr = (char*)(data + stroff);
-        for (nstrings = j = 0; j < sh_sz && nstrings < STRTABLE_MAX; j++) {
-                if (dataptr[j] == '\0')
-                        stringtable[++nstrings] = dataptr + j + 1;
-        }
-        return nstrings;
-}
-
-
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data)
 {
-        Elf64_Off j, stroff;
-        int nrsz, nstrings;
-        const char* stringtable[STRTABLE_MAX];
+        Elf64_Off stroff = section[ehdr->e_shstrndx].sh_offset;
+        int nrsz = (int)log10((double)ehdr->e_shnum) + 1;
+        char* nr = "Nr";
+        char* spc = " ";
 
-        nstrings = get_string_table(
-                stringtable,
-                section[ehdr->e_shstrndx].sh_offset,
-                section[ehdr->e_shstrndx].sh_size,
-                data
-        );
-
-        for (int i = 0; i < nstrings; i++)
-                printf("[%d]:%s\n", i, stringtable[i]);
-
-        return;
-
-        nrsz = (int)log10((double)ehdr->e_shnum) + 1;
         printf(
                 "There are %d section headers, starting at offset 0x%.4x:\n"
                 "\n"
                 "Section Headers:\n"
-                "[Nr]   Name              Type             Address           Offset\n"
-                "       Size              EntSize          Flags  Link  Info  Align\n",
-                (int)ehdr->e_shnum, ehdr->e_shoff
+                "[%*s] Name              Type             Address           Offset\n"
+                " %*s  Size              EntSize          Flags  Link  Info  Align\n",
+                (int)ehdr->e_shnum, ehdr->e_shoff,
+                nrsz, nr, nrsz, spc
         );
 
         for (int i = 0; i < ehdr->e_shnum; i++) {
-                printf("[%*d]\n", nrsz, i);
+                printf("[%*d] %s\n", nrsz, i,
+                        (data + stroff + section[i].sh_name)
+                );
         }
 
         printf(
@@ -467,6 +446,120 @@ err:
         fclose(output_file);
         return success;
 }
+
+
+Elf64_Off get_s_type_offset(Elf64_Word type)
+{
+        off_t offs;
+
+        switch (type)
+        {
+        case SHT_NULL:
+                offs = 0;
+                break;
+        case SHT_PROGBITS:
+                offs = 1;
+                break;
+        case SHT_SYMTAB:
+                offs = 2;
+                break;
+        case SHT_STRTAB:
+                offs = 3;
+                break;
+        case SHT_RELA:
+                offs = 4;
+                break;
+        case SHT_HASH:
+                offs = 5;
+                break;
+        case SHT_DYNAMIC:
+                offs = 6;
+                break;
+        case SHT_NOTE:
+                offs = 7;
+                break;
+        case SHT_NOBITS:
+                offs = 8;
+                break;
+        case SHT_REL:
+                offs = 9;
+                break;
+        case SHT_SHLIB:
+                offs = 10;
+                break;
+        case SHT_DYNSYM:
+                offs = 11;
+                break;
+        case SHT_INIT_ARRAY:
+                offs = 12;
+                break;
+        case SHT_FINI_ARRAY:
+                offs = 13;
+                break;
+        case SHT_PREINIT_ARRAY:
+                offs = 14;
+                break;
+        case SHT_GROUP:
+                offs = 15;
+                break;
+        case SHT_SYMTAB_SHNDX:
+                offs = 16;
+                break;
+        case SHT_NUM:
+                offs = 17;
+                break;
+        case SHT_LOOS:
+                offs = 18;
+                break;
+        case SHT_GNU_ATTRIBUTES:
+                offs = 19;
+                break;
+        case SHT_GNU_HASH:
+                offs = 20;
+                break;
+        case SHT_GNU_LIBLIST:
+                offs = 21;
+                break;
+        case SHT_CHECKSUM:
+                offs = 22;
+                break;
+        case SHT_LOSUNW:
+                offs = 23;
+                break;
+        case SHT_SUNW_COMDAT:
+                offs = 24;
+                break;
+        case SHT_SUNW_syminfo:
+                offs = 25;
+                break;
+        case SHT_GNU_verdef:
+                offs = 26;
+                break;
+        case SHT_GNU_verneed:
+                offs = 27;
+                break;
+        case SHT_GNU_versym:
+                offs = 28;
+                break;
+        case SHT_LOPROC:
+                offs = 29;
+                break;
+        case SHT_HIPROC:
+                offs = 30;
+                break;
+        case SHT_LOUSER:
+                offs = 31;
+                break;
+        case SHT_HIUSER:
+                offs = 32;
+                break;
+        default:
+                0;
+        }
+
+        return offs;
+}
+
 
 
 off_t get_p_type_offset(Elf64_Word type)
