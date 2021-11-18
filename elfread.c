@@ -61,7 +61,7 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
-int get_s_type_offset(Elf64_Word type);
+int get_s_type_index(Elf64_Word type);
 int get_p_type_index(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
@@ -192,20 +192,21 @@ void display_elf_s_section_header(const Elf64_Shdr* section,
                 "There are %d section headers, starting at offset 0x%.4x:\n"
                 "\n"
                 "Section Headers:\n"
-                "[%*s] Name              Type             Address           Offset\n"
-                " %*s  Size              EntSize          Flags  Link  Info  Align\n",
+                "[%*s] Name                 Type             Address           Offset\n"
+                " %*s  Size                 EntSize          Flags  Link  Info  Align\n\n",
                 (int)ehdr->e_shnum, ehdr->e_shoff,
                 nrsz, nr, nrsz, spc
         );
 
         for (int i = 0; i < ehdr->e_shnum; i++) {
-                printf("[%*d] %s\n", nrsz, i,
-                        (data + stroff + section[i].sh_name)
+                printf("[%*d] %-*s %-*s\n", nrsz, i,
+                        20, (data + stroff + section[i].sh_name),
+                        16, elf_s_type_id[get_s_type_index(section[i].sh_type)]
                 );
         }
 
         printf(
-                "Key to Flags:\n"
+                "\nKey to Flags:\n"
                 "  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n"
                 "  L (link order), O (extra OS processing required), G (group), T (TLS),\n"
                 "  C (compressed), x (unknown), o (OS specific), E (exclude),\n"
@@ -450,7 +451,7 @@ err:
 }
 
 
-int get_s_type_offset(Elf64_Word type)
+int get_s_type_index(Elf64_Word type)
 {
         int offs;
         switch (type)
@@ -551,9 +552,8 @@ int get_s_type_offset(Elf64_Word type)
         case SHT_HIUSER:
                 offs = 32;
                 break;
-        case SHT_NULL:
         default:
-                0;
+                offs = 0;
         }
         return offs;
 }
