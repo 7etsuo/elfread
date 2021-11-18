@@ -61,8 +61,7 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
-off_t get_p_type_offset(Elf64_Word type);
-int get_s_type_offset(Elf64_Word type);
+int get_p_type_index(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
@@ -167,6 +166,8 @@ int main(int argc, char** argv)
         if (g_elf_file_header_flag)
                 display_elf_header(&ehdr);
 
+        memcpy(&segment, data + ehdr.e_phoff, ehdr.e_phentsize * ehdr.e_phnum);
+
         if (g_elf_prog_header_flag)
                 display_elf_p_segment_header(segment, &ehdr, data);
 
@@ -236,7 +237,7 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
         );
 
         for (size_t i = 0; i < ehdr->e_phnum; i++) {
-                p_type_offs = get_p_type_offset(segment[i].p_type);
+                p_type_offs = get_p_type_index(segment[i].p_type);
                 printf(
                         "  %-12s\t 0x%.16x 0x%.16x 0x%.16x\n"
                         "                 0x%.16x 0x%.16x  %c%c%c    0x%x\n",
@@ -557,59 +558,66 @@ int get_s_type_offset(Elf64_Word type)
 }
 
 
-off_t get_p_type_offset(Elf64_Word type)
+int get_p_type_index(Elf64_Word type)
 {
-        off_t offs;
+        int offs;
         switch (type)
         {
-        case 0:
-                offs = 0;
-                break;
-        case 1:
+        case PT_LOAD:
                 offs = 1;
                 break;
-        case 2:
+        case PT_DYNAMIC:
                 offs = 2;
                 break;
-        case 3:
+        case PT_INTERP:
                 offs = 3;
                 break;
-        case 4:
+        case PT_NOTE:
                 offs = 4;
                 break;
-        case 5:
+        case PT_SHLIB:
                 offs = 5;
                 break;
-        case 6:
+        case PT_PHDR:
                 offs = 6;
                 break;
-        case 7:
+        case PT_TLS:
                 offs = 7;
                 break;
-        case 8:
+        case PT_NUM:
                 offs = 8;
                 break;
-        case 0x60000000:
+        case PT_LOOS:
                 offs = 9;
                 break;
-        case 0x6474e550:
+        case PT_GNU_EH_FRAME:
                 offs = 10;
                 break;
-        case 0x6474e551:
+        case PT_GNU_STACK:
                 offs = 11;
                 break;
-        case 0x6474e552:
+        case PT_GNU_RELRO:
                 offs = 12;
                 break;
-        case 0x6ffffffa:
+        case PT_LOSUNW:
                 offs = 13;
                 break;
-        case 0x6ffffffb:
+        case PT_SUNWSTACK:
                 offs = 14;
                 break;
-        case 0x6fffffff:
+        case PT_HISUNW:
                 offs = 15;
+                break;
+        case PT_LOPROC:
+                offs = 16;
+                break;
+        case PT_HIPROC:
+                offs = 17;
+                break;
+        case PT_NULL:
+        default:
+                offs = 0;
+                break;
         }
-
         return offs;
 }
