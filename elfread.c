@@ -396,12 +396,14 @@ int read_file_into_mem(const char* filename, void** data_out, size_t* size_out)
         FILE* file;
         long filesize;
         void* mem;
-
-        if ((stat(filename, &sb) == -1) || S_ISDIR(sb.st_mode))
-                goto err_ret;
+        int fd;
 
         file = fopen(filename, "rb");
         if (file == NULL)
+                goto err_ret;
+
+        fd = fileno(file);
+        if ((fstat(fd, &sb) == -1) || S_ISDIR(sb.st_mode))
                 goto err_ret;
 
         if (fseek(file, 0, SEEK_END) == -1)
