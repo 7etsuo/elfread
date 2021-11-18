@@ -561,7 +561,6 @@ Elf64_Off get_s_type_offset(Elf64_Word type)
 }
 
 
-
 off_t get_p_type_offset(Elf64_Word type)
 {
         off_t offs;
