@@ -61,6 +61,7 @@ void display_elf_p_segment_header(const Elf64_Phdr* segment,
 int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
+int get_s_type_offset(Elf64_Word type);
 int get_p_type_index(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
