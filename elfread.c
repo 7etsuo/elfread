@@ -180,6 +180,7 @@ int main(int argc, char** argv)
 }
 
 
+
 void display_elf_s_section_header(const Elf64_Shdr* section,
         const Elf64_Ehdr* ehdr, const void* data)
 {
@@ -192,21 +193,44 @@ void display_elf_s_section_header(const Elf64_Shdr* section,
                 "There are %d section headers, starting at offset 0x%.4x:\n"
                 "\n"
                 "Section Headers:\n"
-                "[%*s] Name                 Type             Address           Offset\n"
-                " %*s  Size                 EntSize          Flags  Link  Info  Align\n\n",
+                "[%*s] Name                 Type             Address          Offset\n"
+                " %*s  Size                 EntSize          Flags            Link  Info  Align\n",
                 (int)ehdr->e_shnum, ehdr->e_shoff,
                 nrsz, nr, nrsz, spc
         );
 
         for (int i = 0; i < ehdr->e_shnum; i++) {
-                printf("[%*d] %-*s %-*s\n", nrsz, i,
+                printf(
+                        "[%*d] %-*s %-*s %-.*x %-.*x\n"
+                        " %*s  %-.*x     %-.*x %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %4d  %4d  %5d\n"
+                        , nrsz, i,
                         20, (data + stroff + section[i].sh_name),
-                        16, elf_s_type_id[get_s_type_index(section[i].sh_type)]
+                        16, elf_s_type_id[get_s_type_index(section[i].sh_type)],
+                        16, section[i].sh_addr, 16, section[i].sh_offset,
+                        nrsz, spc,
+                        16, section[i].sh_size, 16, section[i].sh_entsize,
+                        (section[i].sh_flags & SHF_WRITE ? 'W' : ' '),
+                        (section[i].sh_flags & SHF_ALLOC ? 'A' : ' '),
+                        (section[i].sh_flags & SHF_EXECINSTR ? 'X' : ' '),
+                        (section[i].sh_flags & SHF_MERGE ? 'M' : ' '),
+                        (section[i].sh_flags & SHF_STRINGS ? 'S' : ' '),
+                        (section[i].sh_flags & SHF_INFO_LINK ? 'I' : ' '),
+                        (section[i].sh_flags & SHF_LINK_ORDER ? 'L' : ' '),
+                        (section[i].sh_flags & SHF_OS_NONCONFORMING ? 'O' : ' '),
+                        (section[i].sh_flags & SHF_GROUP ? 'G' : ' '),
+                        (section[i].sh_flags & SHF_TLS ? 'T' : ' '),
+                        (section[i].sh_flags & SHF_COMPRESSED ? 'C' : ' '),
+                        (section[i].sh_flags & (1 << 12) ? 'x' : ' '),
+                        (section[i].sh_flags & SHF_MASKOS ? 'o' : ' '),
+                        (section[i].sh_flags & SHF_EXCLUDE ? 'E' : ' '),
+                        (section[i].sh_flags & SHF_ORDERED ? 'l' : ' '),
+                        (section[i].sh_flags & SHF_MASKPROC ? 'p' : ' '),
+                        section[i].sh_link, section[i].sh_info, section[i].sh_addralign
                 );
         }
 
         printf(
-                "\nKey to Flags:\n"
+                "Key to Flags:\n"
                 "  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n"
                 "  L (link order), O (extra OS processing required), G (group), T (TLS),\n"
                 "  C (compressed), x (unknown), o (OS specific), E (exclude),\n"
