@@ -62,7 +62,7 @@ int read_file_into_mem(const char* filename, void** data_out, size_t* size_out);
 int write_mem_to_file(const char* filename, const void* data, size_t size);
 void display_elf_header(const Elf64_Ehdr* ehdr);
 off_t get_p_type_offset(Elf64_Word type);
-Elf64_Off get_s_type_offset(Elf64_Word type);
+int get_s_type_offset(Elf64_Word type);
 Elf64_Half emit_e_type(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_class(const Elf64_Ehdr* ehdr);
 Elf64_Half emit_ei_data(const Elf64_Ehdr* ehdr);
@@ -448,15 +448,12 @@ err:
 }
 
 
-Elf64_Off get_s_type_offset(Elf64_Word type)
+int get_s_type_offset(Elf64_Word type)
 {
         off_t offs;
 
         switch (type)
         {
-        case SHT_NULL:
-                offs = 0;
-                break;
         case SHT_PROGBITS:
                 offs = 1;
                 break;
@@ -553,10 +550,10 @@ Elf64_Off get_s_type_offset(Elf64_Word type)
         case SHT_HIUSER:
                 offs = 32;
                 break;
+        case SHT_NULL:
         default:
                 0;
         }
-
         return offs;
 }
 
