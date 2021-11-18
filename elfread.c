@@ -83,6 +83,7 @@ const char* g_help_menu = {
         "   --segments                                             \n"
         "-S --section-headers           Displays the information contained \n"
         "   --sections                  in the file's section headers\n"
+        "-e --headers                   Display all the headers -hlS\n"
         "-H --help                      Display this information\n\n"
         "                               the-scientist@rootstorm.com\n"
         "                               https://www.rootstorm.com\n\n"
@@ -112,11 +113,12 @@ int main(int argc, char** argv)
                     { "segments",        no_argument, 0, 'l' },
                     { "section-headers", no_argument, 0, 'S' },
                     { "sections",        no_argument, 0, 'S' },
+                    { "headers",         no_argument, 0, 'e' },
                     { "help",            no_argument, 0, 'H' },
                     {  0,                0,           0,  0  }
                 };
 
-                c = getopt_long(argc, argv, "hlHS",
+                c = getopt_long(argc, argv, "hlHSe",
                         long_options, &option_index);
                 if (c == -1) {
                         g_elf_help_flag = optind == 1 ?
@@ -132,6 +134,11 @@ int main(int argc, char** argv)
                         g_elf_prog_header_flag = 1;
                         break;
                 case 'S':
+                        g_elf_section_header_flag = 1;
+                        break;
+                case 'e':
+                        g_elf_file_header_flag = 1;
+                        g_elf_prog_header_flag = 1;
                         g_elf_section_header_flag = 1;
                         break;
                 case 'H':
