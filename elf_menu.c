@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "elf_menu.h"
-#include "my_elf.h"
+#include "./include/elf_menu.h"
+#include "./include/my_elf.h"
 
 typedef int (*MenuAction) (void *);
 typedef struct _MenuItem

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "my_elf.h"
+#include "./include/my_elf.h"
 
 int
 validate_elf_magic (const Elf64_Ehdr *ehdr)

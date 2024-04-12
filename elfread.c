@@ -1,14 +1,10 @@
 /* elfread.c
- * This tool will display information about ELF files.
- * Based on the GNU development tool readelf
- *
  * usage:
  * $ gcc elfread.c -o elfread -lm
  * $ ./elfread -hlS /bin/ls
  *
  */
 
-#include "./include/strings_global.h"
 #include <elf.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -20,6 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+#include "./include/strings_global.h"
 
 #define err_exit(msg)                                                         \
   do                                                                          \
@@ -97,6 +95,7 @@ void get_segment_pflag (char *flagstring, Elf64_Word flags);
 int get_string_table (const char *stringtable[], Elf64_Off stroff,
                       Elf64_Xword sh_sz, const void *data);
 
+#if TEST_ELFREAD == 1
 int
 main (int argc, char **argv)
 {
@@ -185,6 +184,7 @@ main (int argc, char **argv)
   free (data);
   return 0;
 }
+#endif // TEST_ELFREAD
 
 void
 display_elf_s_section_header (const Elf64_Shdr *section,

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fileio.h"
+#include "./include/fileio.h"
 
 int
 robust_fseek (FILE *stream, long offset, int whence)

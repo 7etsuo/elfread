@@ -9,9 +9,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "elf_menu.h"
-#include "fileio.h"
-#include "my_elf.h"
+#include "./include/elf_menu.h"
+#include "./include/fileio.h"
+#include "./include/my_elf.h"
 
 // ssize_t
 // disassemble_code_section (const uint8_t *code, size_t size)
