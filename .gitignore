@@ -2,3 +2,5 @@
 elfread
 ls
 notes_*
+*.o
+main

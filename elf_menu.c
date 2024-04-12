@@ -4,50 +4,21 @@
 
 #include "./include/elf_menu.h"
 #include "./include/my_elf.h"
+#include "./include/elf_menu.h"
 
-typedef int (*MenuAction) (void *);
-typedef struct _MenuItem
-{
-  const char *text;
-  MenuAction action;
-} MenuItem;
+int exit_program (void *);
 
-static int display_elf_header (void *);
-static int disassemble_code_section (void *);
-static int display_symbol_table (void *);
-static int display_relocation_table (void *);
-static int display_dynamic_symbol_table (void *);
-static int display_dynamic_relocation_table (void *);
-static int display_dynamic_section (void *);
-static int display_program_header_table (void *);
-static int display_section_header_table (void *);
-static int display_string_table (void *);
-static int display_all (void *);
-static int exit_program (void *);
-
-static void print_and_wait (const char *str);
-static void init_menu (void);
-static void cleanup_menu (void);
+static void init_screen (void);
+static void cleanup_screen (void);
 static void draw_menu (int highlight);
+static int init_MenuAction (MenuConfig *config);
 
-MenuItem menu_items[] = {
-  { "Display elf header", display_elf_header },
-  { "Disassemble code section", disassemble_code_section },
-  { "Display symbol table", display_symbol_table },
-  { "Display relocation table", display_relocation_table },
-  { "Display dynamic symbol table", display_dynamic_symbol_table },
-  { "Display dynamic relocation table", display_dynamic_relocation_table },
-  { "Display dynamic section", display_dynamic_section },
-  { "Display program header table", display_program_header_table },
-  { "Display section header table", display_section_header_table },
-  { "Display string table", display_string_table },
-  { "Display all", display_all },
-  { "Exit", exit_program },
-};
-int num_menu_items = sizeof (menu_items) / sizeof (MenuItem);
+static const char *title;
+static MenuItem menu_items[MAX_MENU_ITEMS] = { 0 };
+static int num_menu_items = 0;
 
 static void
-init_menu (void)
+init_screen (void)
 {
   initscr ();
   cbreak ();
@@ -58,29 +29,83 @@ init_menu (void)
 }
 
 static void
-cleanup_menu (void)
+cleanup_screen (void)
 {
   endwin ();
+}
+
+static int
+init_MenuAction (MenuConfig *config)
+{
+  for (size_t i = 0; i < config->item_count; i++)
+    {
+      if (config->items[i].text == NULL)
+        {
+          fprintf (stderr, "Menu item text is NULL.\n");
+          return -1;
+        }
+      if (config->items[i].action == NULL)
+        {
+          fprintf (stderr, "Menu item action is NULL.\n");
+          return -1;
+        }
+
+      menu_items[i] = config->items[i];
+    }
+  return 0;
 }
 
 static void
 draw_menu (int highlight)
 {
+  if (title != NULL)
+    {
+      mvprintw (0, 0, title);
+    }
+
   for (int i = 0; i < num_menu_items; i++)
     {
       if (i == highlight)
         {
           attron (A_REVERSE);
         }
-      mvprintw (i + 1, 1, "0x0%x) %s", i, menu_items[i].text);
+      mvprintw (i + 1, 1, "0x0%x) %s %c", i, menu_items[i].text,
+                i == num_menu_items - 1 ? '\n' : ' ');
       attroff (A_REVERSE);
     }
+}
+
+int
+init_elf_menu (MenuConfig *config)
+{
+  if (config == NULL)
+    {
+      fprintf (stderr, "Menu configuration is NULL.\n");
+      return -1;
+    }
+
+  if (config->item_count > MAX_MENU_ITEMS)
+    {
+      fprintf (stderr, "Too many menu items.\n");
+      return -1;
+    }
+
+  title = config->title;
+  int retval = init_MenuAction (config);
+  if (retval != 0)
+    {
+      return retval;
+    }
+
+  num_menu_items = config->item_count;
+
+  return 0;
 }
 
 void
 do_elf_menu (void)
 {
-  init_menu ();
+  init_screen ();
 
   int highlight = 0;
   int choice = 0;
@@ -131,6 +156,15 @@ do_elf_menu (void)
         case 'b':
           highlight = 11;
           break;
+        case 'd':
+          highlight = 12;
+          break;
+        case 'e':
+          highlight = 13;
+          break;
+        case 'f':
+          highlight = 14;
+          break;
         case KEY_UP:
           highlight--;
           if (highlight < 0)
@@ -155,7 +189,7 @@ do_elf_menu (void)
         }
     }
 
-  cleanup_menu ();
+  cleanup_screen ();
 }
 
 int
@@ -259,7 +293,13 @@ exit_program (void *v)
   return 1;
 }
 
-static void
+void
+menu_print (const char *str)
+{
+  printw (str);
+}
+
+void
 print_and_wait (const char *str)
 {
   clear ();
