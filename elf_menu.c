@@ -175,7 +175,7 @@ do_elf_menu (void)
 
       if (choice == 10)
         {
-          int option = menu_items[highlight].action (NULL);
+          int option = menu_items[highlight].action (data);
           if (option == 1)
             {
               break;
