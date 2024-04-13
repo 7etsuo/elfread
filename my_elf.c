@@ -1,4 +1,9 @@
+#ifdef __APPLE__
+#include <libelf/libelf.h>
+#elif __linux__
 #include <libelf.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 

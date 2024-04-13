@@ -1,7 +1,11 @@
 #ifndef STRINGS_GLOBAL_H
 #define STRINGS_GLOBAL_H
 
-#include <elf.h>
+#ifdef __APPLE__
+#include <libelf/libelf.h>
+#elif __linux__
+#include <libelf.h>
+#endif
 
 // in elfread.c
 extern const char* elf_class_id[ELFCLASSNUM];
