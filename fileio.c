@@ -119,6 +119,18 @@ err:
 FILE *
 robust_fopen_secure (const char *filename, const char *mode)
 {
+  if (filename == NULL)
+    {
+      fprintf (stderr, "Filename is NULL.\n");
+      return NULL;
+    }
+
+  if (mode == NULL)
+    {
+      fprintf (stderr, "Mode is NULL.\n");
+      return NULL;
+    }
+
   if (strpbrk (filename, "\\/:*?\"<>|") != NULL)
     {
       fprintf (stderr, "Filename contains invalid characters.\n");
@@ -137,7 +149,10 @@ robust_read_file (const char *filename)
   if (file == NULL)
     return NULL;
 
-  FileContents *file_contents = malloc (sizeof (FileContents));
+  FileContents *file_contents = robust_malloc (sizeof (FileContents));
+  if (file_contents == NULL)
+    goto err;
+
   if (allocate_buffer_for_file (file, file_contents) == NULL)
     {
       fprintf (stderr, "Failed to allocate buffer for file.\n");
@@ -146,17 +161,11 @@ robust_read_file (const char *filename)
 
   size_t read_length
       = robust_fread (file_contents->buffer, 1, file_contents->length, file);
-  if (read_length != file_contents->length)
-    {
-      fprintf (stderr, "Failed to read file.\n");
-      goto err;
-    }
+  if (read_length == -1)
+    goto err;
 
   if (robust_fclose (file) != 0)
-    {
-      fprintf (stderr, "Failed to close file.\n");
-      goto err;
-    }
+    goto err;
 
   return file_contents;
 

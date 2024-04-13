@@ -1,5 +1,3 @@
-#include <capstone/capstone.h>
-#include <elf.h>
 
 #include <fcntl.h>
 #include <inttypes.h>
@@ -9,10 +7,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "./include/elf_menu.h"
-#include "./include/fileio.h"
-#include "./include/my_elf.h"
+#include "./include/elf_controller.h"
 
+// #include <capstone/capstone.h>
 // ssize_t
 // disassemble_code_section (const uint8_t *code, size_t size)
 // {
@@ -39,71 +36,16 @@
 //   return 1;
 // }
 
-int display_elf_header (void *);
-int disassemble_code_section (void *);
-int display_symbol_table (void *);
-int display_relocation_table (void *);
-int display_dynamic_symbol_table (void *);
-int display_dynamic_relocation_table (void *);
-int display_dynamic_section (void *);
-int display_program_header_table (void *);
-int display_section_header_table (void *);
-int display_string_table (void *);
-int display_all (void *);
-int exit_program (void *);
-
-MenuItem menu_items[] = {
-  { "Display elf header", display_elf_header },
-  { "Disassemble code section", disassemble_code_section },
-  { "Display symbol table", display_symbol_table },
-  { "Display relocation table", display_relocation_table },
-  { "Display dynamic symbol table", display_dynamic_symbol_table },
-  { "Display dynamic relocation table", display_dynamic_relocation_table },
-  { "Display dynamic section", display_dynamic_section },
-  { "Display program header table", display_program_header_table },
-  { "Display section header table", display_section_header_table },
-  { "Display string table", display_string_table },
-  { "Display all", display_all },
-  { "Exit", exit_program },
-};
-int num_menu_items = sizeof (menu_items) / sizeof (MenuItem);
+int
+app_runner (const char *const filename)
+{
+  return do_run_controller (filename);
+}
 
 int
-main (int argc, char **argv)
+main (int argc, char *argv[])
 {
+  char *filename = argc == 2 ? argv[1] : "testelf";
 
-  char *filename = "temp";
-  if (argc == 2)
-    {
-      filename = argv[1];
-    }
-
-  FileContents *filecontents = robust_read_file (filename);
-  if (filecontents == NULL)
-    {
-      return 1;
-    }
-
-  Elf64_Ehdr ehdr = { 0 };
-  if (get_elf_header (filecontents->buffer, filecontents->length, &ehdr) != 0)
-    {
-      free (filecontents->buffer);
-      free (filecontents);
-      return 1;
-    }
-
-  MenuConfig config = { "ELF Menu", menu_items, num_menu_items };
-  if (init_elf_menu (&config) != 0)
-    {
-      free (filecontents->buffer);
-      free (filecontents);
-      return 1;
-    }
-
-  do_elf_menu ();
-
-  free (filecontents->buffer);
-  free (filecontents);
-
-  return 0;
+  return app_runner (filename);
 }

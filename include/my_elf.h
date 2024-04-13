@@ -1,6 +1,7 @@
 #ifndef MY_ELF_H
 #define MY_ELF_H
 
+#include "fileio.h"
 #include <elf.h>
 #include <stddef.h>
 

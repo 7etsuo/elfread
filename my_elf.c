@@ -1,7 +1,8 @@
-#include <elf.h>
+#include <libelf.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "./include/fileio.h"
 #include "./include/my_elf.h"
 
 int

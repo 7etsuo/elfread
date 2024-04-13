@@ -4,7 +4,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -pedantic -std=c99 -lcapstone -lncurses -g
+CFLAGS = -Wall -pedantic -std=c99 -lcapstone -lncurses -lelf -g
 
 
 # Source files
