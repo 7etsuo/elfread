@@ -4,6 +4,10 @@
 #include <libelf.h>
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "./include/elf_controller.h"
 #include "./include/elf_menu.h"
 #include "./include/fileio.h"
@@ -62,7 +66,7 @@ do_run_controller (const char *const filename)
   if (get_elf_header (filecontents->buffer, filecontents->length, &ehdr) != 0)
     goto clean;
 
-  MenuConfig config = { "ELF Menu", menu_items, num_menu_items };
+  MenuConfig config = { "ELF Menu", menu_items, &ehdr, num_menu_items };
   if (init_elf_menu (&config) != 0)
     goto clean;
 
@@ -82,14 +86,13 @@ display_elf_header (void *v)
 {
   Elf64_Ehdr *ehdr = (Elf64_Ehdr *)v;
 
-  // build strings for ehdr
-  char *e_ident = malloc (EI_NIDENT + 1);
+  char *e_ident = robust_malloc (EI_NIDENT + 1);
   if (e_ident == NULL)
     {
       fprintf (stderr, "Failed to allocate e_ident buffer\n");
       return -1;
     }
-  strncpy (e_ident, ehdr->e_ident, EI_NIDENT);
+  strncpy (e_ident, (char *)ehdr->e_ident, EI_NIDENT);
   e_ident[EI_NIDENT] = '\0';
 
   char e_ident_str[50];
@@ -143,7 +146,22 @@ display_elf_header (void *v)
   snprintf (e_shstrndx_str, sizeof (e_shstrndx_str), "e_shstrndx: %d\n",
             ehdr->e_shstrndx);
 
-  print_and_wait ("Display elf header\n");
+  elfprint (e_ident_str);
+  elfprint (e_type_str);
+  elfprint (e_machine_str);
+  elfprint (e_version_str);
+  elfprint (e_entry_str);
+  elfprint (e_phoff_str);
+  elfprint (e_shoff_str);
+  elfprint (e_flags_str);
+  elfprint (e_ehsize_str);
+  elfprint (e_phentsize_str);
+  elfprint (e_phnum_str);
+  elfprint (e_shentsize_str);
+  elfprint (e_shnum_str);
+  elfprint (e_shstrndx_str);
+
+  print_and_wait ("");
   return 0;
 }
 

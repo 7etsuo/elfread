@@ -175,7 +175,9 @@ do_elf_menu (void)
 
       if (choice == 10)
         {
+          clear ();
           int option = menu_items[highlight].action (data);
+          refresh ();
           if (option == 1)
             {
               break;
@@ -212,9 +214,7 @@ elfprint (const char *str)
 void
 print_and_wait (const char *str)
 {
-  clear ();
   printw (str);
   printw ("Press any key to continue: ");
-  refresh ();
   (void)getch ();
 }
