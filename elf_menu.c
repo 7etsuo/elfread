@@ -204,7 +204,7 @@ get_menu_input (void)
 }
 
 void
-menu_print (const char *str)
+elfprint (const char *str)
 {
   printw (str);
 }

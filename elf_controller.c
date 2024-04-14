@@ -82,7 +82,67 @@ display_elf_header (void *v)
 {
   Elf64_Ehdr *ehdr = (Elf64_Ehdr *)v;
 
-  
+  // build strings for ehdr
+  char *e_ident = malloc (EI_NIDENT + 1);
+  if (e_ident == NULL)
+    {
+      fprintf (stderr, "Failed to allocate e_ident buffer\n");
+      return -1;
+    }
+  strncpy (e_ident, ehdr->e_ident, EI_NIDENT);
+  e_ident[EI_NIDENT] = '\0';
+
+  char e_ident_str[50];
+  snprintf (e_ident_str, sizeof (e_ident_str), "e_ident: %s\n", e_ident);
+
+  char e_type_str[50];
+  snprintf (e_type_str, sizeof (e_type_str), "e_type: %d\n", ehdr->e_type);
+
+  char e_machine_str[50];
+  snprintf (e_machine_str, sizeof (e_machine_str), "e_machine: %d\n",
+            ehdr->e_machine);
+
+  char e_version_str[50];
+  snprintf (e_version_str, sizeof (e_version_str), "e_version: %d\n",
+            ehdr->e_version);
+
+  char e_entry_str[50];
+  snprintf (e_entry_str, sizeof (e_entry_str), "e_entry: %lx\n",
+            ehdr->e_entry);
+
+  char e_phoff_str[50];
+  snprintf (e_phoff_str, sizeof (e_phoff_str), "e_phoff: %lx\n",
+            ehdr->e_phoff);
+
+  char e_shoff_str[50];
+  snprintf (e_shoff_str, sizeof (e_shoff_str), "e_shoff: %lx\n",
+            ehdr->e_shoff);
+
+  char e_flags_str[50];
+  snprintf (e_flags_str, sizeof (e_flags_str), "e_flags: %x\n", ehdr->e_flags);
+
+  char e_ehsize_str[50];
+  snprintf (e_ehsize_str, sizeof (e_ehsize_str), "e_ehsize: %d\n",
+            ehdr->e_ehsize);
+
+  char e_phentsize_str[50];
+  snprintf (e_phentsize_str, sizeof (e_phentsize_str), "e_phentsize: %d\n",
+            ehdr->e_phentsize);
+
+  char e_phnum_str[50];
+  snprintf (e_phnum_str, sizeof (e_phnum_str), "e_phnum: %d\n", ehdr->e_phnum);
+
+  char e_shentsize_str[50];
+  snprintf (e_shentsize_str, sizeof (e_shentsize_str), "e_shentsize: %d\n",
+            ehdr->e_shentsize);
+
+  char e_shnum_str[50];
+  snprintf (e_shnum_str, sizeof (e_shnum_str), "e_shnum: %d\n", ehdr->e_shnum);
+
+  char e_shstrndx_str[50];
+  snprintf (e_shstrndx_str, sizeof (e_shstrndx_str), "e_shstrndx: %d\n",
+            ehdr->e_shstrndx);
+
   print_and_wait ("Display elf header\n");
   return 0;
 }

@@ -21,7 +21,7 @@ typedef struct _MenuConfig
   size_t item_count;
 } MenuConfig;
 
-void menu_print (const char *str);
+void elfprint (const char *str);
 void print_and_wait (const char *str);
 void do_elf_menu (void);
 int init_elf_menu (MenuConfig *config);
