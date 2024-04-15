@@ -4,3 +4,8 @@ ls
 notes_*
 *.o
 main
+elf_controller
+elfread
+fileio
+elf_menu
+my_elf
