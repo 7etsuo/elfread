@@ -13,6 +13,33 @@
 #include "./include/fileio.h"
 #include "./include/my_elf.h"
 
+#define SIZE_TEMPBUF 100
+
+const char *elf_class_id[] = {
+#include "./include/e_class_strings.h"
+};
+const char *elf_data_id[] = {
+#include "./include/e_data_strings.h"
+};
+const char *elf_osabi_id[] = {
+#include "./include/e_osabi_strings.h"
+};
+const char *elf_e_type_id[] = {
+#include "./include/e_type_strings.h"
+};
+const char *elf_e_machine_id[] = {
+#include "./include/e_machine_strings.h"
+};
+const char *elf_e_version_id[] = {
+#include "./include/e_version_strings.h"
+};
+const char *elf_p_type_id[] = {
+#include "./include/p_type_strings.h"
+};
+const char *elf_s_type_id[] = {
+#include "./include/s_type_strings.h"
+};
+
 static void clean_controller (FileContents **filecontents);
 
 static int display_elf_header (void *);
@@ -86,82 +113,122 @@ display_elf_header (void *v)
 {
   Elf64_Ehdr *ehdr = (Elf64_Ehdr *)v;
 
-  char *e_ident = robust_malloc (EI_NIDENT + 1);
-  if (e_ident == NULL)
+  char magic_str[SIZE_TEMPBUF];
+  snprintf (magic_str, sizeof (magic_str), "Magic:   ");
+  for (int i = 0; i < EI_NIDENT; i++)
     {
-      fprintf (stderr, "Failed to allocate e_ident buffer\n");
-      return -1;
+      char temp[4];
+      snprintf (temp, sizeof (temp), "%02x ", ehdr->e_ident[i]);
+      strncat (magic_str, temp, sizeof (magic_str) - strlen (magic_str) - 1);
     }
-  strncpy (e_ident, (char *)ehdr->e_ident, EI_NIDENT);
-  e_ident[EI_NIDENT] = '\0';
+  strncat (magic_str, "\n", sizeof (magic_str) - strlen (magic_str) - 1);
 
-  char e_ident_str[50];
-  snprintf (e_ident_str, sizeof (e_ident_str), "e_ident: %s\n", e_ident);
+  char class_str[SIZE_TEMPBUF];
+  snprintf (class_str, sizeof (class_str),
+            "Class:                             %s\n",
+            elf_class_id[ehdr->e_ident[EI_CLASS]]);
 
-  char e_type_str[50];
-  snprintf (e_type_str, sizeof (e_type_str), "e_type: %d\n", ehdr->e_type);
+  char data_str[SIZE_TEMPBUF];
+  snprintf (data_str, sizeof (data_str),
+            "Data:                              %s\n",
+            elf_data_id[ehdr->e_ident[EI_DATA]]);
 
-  char e_machine_str[50];
-  snprintf (e_machine_str, sizeof (e_machine_str), "e_machine: %d\n",
-            ehdr->e_machine);
+  char version_str[SIZE_TEMPBUF];
+  snprintf (version_str, sizeof (version_str),
+            "Version:                           %d %s\n",
+            ehdr->e_ident[EI_VERSION],
+            ehdr->e_ident[EI_VERSION] ? "(current)" : "(invalid)");
 
-  char e_version_str[50];
-  snprintf (e_version_str, sizeof (e_version_str), "e_version: %d\n",
-            ehdr->e_version);
+  char osabi_str[SIZE_TEMPBUF];
+  snprintf (osabi_str, sizeof (osabi_str),
+            "OS/ABI:                            %s\n",
+            elf_osabi_id[ehdr->e_ident[EI_OSABI]]);
 
-  char e_entry_str[50];
-  snprintf (e_entry_str, sizeof (e_entry_str), "e_entry: %lx\n",
-            ehdr->e_entry);
+  char abiversion_str[SIZE_TEMPBUF];
+  snprintf (abiversion_str, sizeof (abiversion_str),
+            "ABI Version:                       %d\n",
+            ehdr->e_ident[EI_ABIVERSION]);
 
-  char e_phoff_str[50];
-  snprintf (e_phoff_str, sizeof (e_phoff_str), "e_phoff: %lx\n",
+  char type_str[SIZE_TEMPBUF];
+  snprintf (type_str, sizeof (type_str),
+            "Type:                              %s\n",
+            elf_e_type_id[ehdr->e_type]);
+
+  char machine_str[SIZE_TEMPBUF];
+  snprintf (machine_str, sizeof (machine_str),
+            "Machine:                           %s\n",
+            elf_e_machine_id[ehdr->e_machine]);
+
+  char version_str2[SIZE_TEMPBUF];
+  snprintf (version_str2, sizeof (version_str2),
+            "Version:                           0x%x %s\n", ehdr->e_version,
+            elf_e_version_id[ehdr->e_version]);
+
+  char entry_str[SIZE_TEMPBUF];
+  snprintf (entry_str, sizeof (entry_str),
+            "Entry point address:               0x%lx\n", ehdr->e_entry);
+
+  char phoff_str[SIZE_TEMPBUF];
+  snprintf (phoff_str, sizeof (phoff_str),
+            "Start of program headers:          %ld (bytes into file)\n",
             ehdr->e_phoff);
 
-  char e_shoff_str[50];
-  snprintf (e_shoff_str, sizeof (e_shoff_str), "e_shoff: %lx\n",
+  char shoff_str[SIZE_TEMPBUF];
+  snprintf (shoff_str, sizeof (shoff_str),
+            "Start of section headers:          %ld (bytes into file)\n",
             ehdr->e_shoff);
 
-  char e_flags_str[50];
-  snprintf (e_flags_str, sizeof (e_flags_str), "e_flags: %x\n", ehdr->e_flags);
+  char flags_str[SIZE_TEMPBUF];
+  snprintf (flags_str, sizeof (flags_str),
+            "Flags:                             0x%x\n", ehdr->e_flags);
 
-  char e_ehsize_str[50];
-  snprintf (e_ehsize_str, sizeof (e_ehsize_str), "e_ehsize: %d\n",
-            ehdr->e_ehsize);
+  char ehsize_str[SIZE_TEMPBUF];
+  snprintf (ehsize_str, sizeof (ehsize_str),
+            "Size of this header:               %d (bytes)\n", ehdr->e_ehsize);
 
-  char e_phentsize_str[50];
-  snprintf (e_phentsize_str, sizeof (e_phentsize_str), "e_phentsize: %d\n",
+  char phentsize_str[SIZE_TEMPBUF];
+  snprintf (phentsize_str, sizeof (phentsize_str),
+            "Size of program headers:           %d (bytes)\n",
             ehdr->e_phentsize);
 
-  char e_phnum_str[50];
-  snprintf (e_phnum_str, sizeof (e_phnum_str), "e_phnum: %d\n", ehdr->e_phnum);
+  char phnum_str[SIZE_TEMPBUF];
+  snprintf (phnum_str, sizeof (phnum_str),
+            "Number of program headers:         %d\n", ehdr->e_phnum);
 
-  char e_shentsize_str[50];
-  snprintf (e_shentsize_str, sizeof (e_shentsize_str), "e_shentsize: %d\n",
+  char shentsize_str[SIZE_TEMPBUF];
+  snprintf (shentsize_str, sizeof (shentsize_str),
+            "Size of section headers:           %d (bytes)\n",
             ehdr->e_shentsize);
 
-  char e_shnum_str[50];
-  snprintf (e_shnum_str, sizeof (e_shnum_str), "e_shnum: %d\n", ehdr->e_shnum);
+  char shnum_str[SIZE_TEMPBUF];
+  snprintf (shnum_str, sizeof (shnum_str),
+            "Number of section headers:         %d\n", ehdr->e_shnum);
 
-  char e_shstrndx_str[50];
-  snprintf (e_shstrndx_str, sizeof (e_shstrndx_str), "e_shstrndx: %d\n",
-            ehdr->e_shstrndx);
+  char shstrndx_str[SIZE_TEMPBUF];
+  snprintf (shstrndx_str, sizeof (shstrndx_str),
+            "Section header string table index: %d\n", ehdr->e_shstrndx);
 
-  elfprint (e_ident_str);
-  elfprint (e_type_str);
-  elfprint (e_machine_str);
-  elfprint (e_version_str);
-  elfprint (e_entry_str);
-  elfprint (e_phoff_str);
-  elfprint (e_shoff_str);
-  elfprint (e_flags_str);
-  elfprint (e_ehsize_str);
-  elfprint (e_phentsize_str);
-  elfprint (e_phnum_str);
-  elfprint (e_shentsize_str);
-  elfprint (e_shnum_str);
-  elfprint (e_shstrndx_str);
+  elfprint (magic_str);
+  elfprint (class_str);
+  elfprint (data_str);
+  elfprint (version_str);
+  elfprint (osabi_str);
+  elfprint (abiversion_str);
+  elfprint (type_str);
+  elfprint (machine_str);
+  elfprint (version_str2);
+  elfprint (entry_str);
+  elfprint (phoff_str);
+  elfprint (shoff_str);
+  elfprint (flags_str);
+  elfprint (ehsize_str);
+  elfprint (phentsize_str);
+  elfprint (phnum_str);
+  elfprint (shentsize_str);
+  elfprint (shnum_str);
+  elfprint (shstrndx_str);
 
-  print_and_wait ("");
+  print_and_wait ("\n");
   return 0;
 }
 
