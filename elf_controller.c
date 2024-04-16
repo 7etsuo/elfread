@@ -263,18 +263,17 @@ display_program_header_table (void *v)
                     &(phdr[i]));
 
       char buf[1000] = { 0 };
-      snprintf (buf, sizeof (buf), "  %-17s 0x%016lx 0x%016lx 0x%016lx\n",
+      snprintf (buf, sizeof (buf), "[%3d] %-14s 0x%016lx 0x%016lx 0x%016lx\n", i,
                 get_p_type (phdr[i].p_type), phdr[i].p_offset, phdr[i].p_vaddr,
                 phdr[i].p_paddr);
       elfprint (buf);
 
       char flags_buf[4] = { 0 };
-      snprintf (buf, sizeof (buf), "  %-17s 0x%016lx 0x%016lx %-6s 0x%06lx\n",
+      snprintf (buf, sizeof (buf), "%-20s 0x%016lx 0x%016lx %-6s 0x%06lx\n",
                 " ", phdr[i].p_filesz, phdr[i].p_memsz,
                 get_p_flags (phdr[i].p_flags, flags_buf), phdr[i].p_align);
       elfprint (buf);
     }
-
 
   // [TODO]: Implement
   // .interp section is a null-terminated string that specifies the path name of the interpreter.
