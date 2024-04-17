@@ -184,3 +184,34 @@ get_elf_phdr (void *buffer, off_t offset, Elf64_Ehdr *ehdr, Elf64_Phdr *phdr)
 
   return 0;
 }
+
+int
+get_elf_shdr (void *buffer, off_t offset, Elf64_Ehdr *ehdr, Elf64_Shdr *shdr)
+{
+  if (buffer == NULL)
+    {
+      fprintf (stderr, "Buffer is NULL.\n");
+      return -1;
+    }
+
+  if (ehdr == NULL)
+    {
+      fprintf (stderr, "ELF header is NULL.\n");
+      return -1;
+    }
+
+  if (shdr == NULL)
+    {
+      fprintf (stderr, "Section header is NULL.\n");
+      return -1;
+    }
+
+  if (memcpy (shdr, (char *)buffer + ehdr->e_shoff + offset, ehdr->e_shentsize)
+      == NULL)
+    {
+      fprintf (stderr, "Failed to copy section headers.\n");
+      return -1;
+    }
+
+  return 0;
+}
