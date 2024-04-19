@@ -1,7 +1,7 @@
 #ifndef ELF_CONTROLLER_H
 #define ELF_CONTROLLER_H
 
-#define SIZE_TEMPBUF 100
+#define SIZE_TEMPBUF 1024
 
 #define PHDR_MAIN_HEADER_TITLES_FORMAT "      %-14s %-18s %-18s %-18s\n"
 

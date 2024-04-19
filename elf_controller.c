@@ -4,9 +4,11 @@
 #include <libelf.h>
 #endif
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "./include/elf_controller.h"
 #include "./include/elf_menu.h"
@@ -99,6 +101,33 @@ ret:
   return retval;
 }
 
+int
+format_and_print (const char *label, const char *format, ...)
+{
+  if (label == NULL || format == NULL)
+    {
+      return 1;
+    }
+
+  if (strlen (label) + strlen (format) + 1 > SIZE_TEMPBUF)
+    {
+      return 1;
+    }
+
+  char buf[SIZE_TEMPBUF];
+  va_list args;
+
+  snprintf (buf, sizeof (buf), "%s", label);
+  size_t available_space = sizeof (buf) - strlen (buf) - 1; // -1 for '\0'
+  va_start (args, format);
+  vsnprintf (buf + strlen (buf), available_space, format, args);
+  va_end (args);
+
+  elfprint (buf);
+
+  return 0;
+}
+
 static int
 display_elf_header (void *v)
 {
@@ -111,20 +140,18 @@ display_elf_header (void *v)
       return 1;
     }
 
-  char magic_str[SIZE_TEMPBUF];
-  snprintf (magic_str, sizeof (magic_str), "Magic:   ");
+  format_and_print ("Magic:   ", "");
   for (int i = 0; i < EI_NIDENT; i++)
     {
-      char temp[4];
-      snprintf (temp, sizeof (temp), "%02x ", ehdr.e_ident[i]);
-      strncat (magic_str, temp, sizeof (magic_str) - strlen (magic_str) - 1);
+      format_and_print ("", "%02x ", ehdr.e_ident[i]);
+      if (i == EI_NIDENT - 1)
+        {
+          elfprint ("\n");
+        }
     }
-  strncat (magic_str, "\n", sizeof (magic_str) - strlen (magic_str) - 1);
 
-  char class_str[SIZE_TEMPBUF];
-  snprintf (class_str, sizeof (class_str),
-            "Class:                             %s\n",
-            elf_class_id[ehdr.e_ident[EI_CLASS]]);
+  format_and_print ("Class:                             %s\n",
+                    elf_class_id[ehdr.e_ident[EI_CLASS]]);
 
   char data_str[SIZE_TEMPBUF];
   snprintf (data_str, sizeof (data_str),
@@ -206,8 +233,6 @@ display_elf_header (void *v)
   snprintf (shstrndx_str, sizeof (shstrndx_str),
             "Section header string table index: %d\n", ehdr.e_shstrndx);
 
-  elfprint (magic_str);
-  elfprint (class_str);
   elfprint (data_str);
   elfprint (version_str);
   elfprint (osabi_str);
@@ -263,9 +288,9 @@ display_program_header_table (void *v)
                     &(phdr[i]));
 
       char buf[1000] = { 0 };
-      snprintf (buf, sizeof (buf), "[%3d] %-14s 0x%016lx 0x%016lx 0x%016lx\n", i,
-                get_p_type (phdr[i].p_type), phdr[i].p_offset, phdr[i].p_vaddr,
-                phdr[i].p_paddr);
+      snprintf (buf, sizeof (buf), "[%3d] %-14s 0x%016lx 0x%016lx 0x%016lx\n",
+                i, get_p_type (phdr[i].p_type), phdr[i].p_offset,
+                phdr[i].p_vaddr, phdr[i].p_paddr);
       elfprint (buf);
 
       char flags_buf[4] = { 0 };
@@ -276,7 +301,8 @@ display_program_header_table (void *v)
     }
 
   // [TODO]: Implement
-  // .interp section is a null-terminated string that specifies the path name of the interpreter.
+  // .interp section is a null-terminated string that specifies the path name
+  // of the interpreter.
   //   Elf64_Shdr interp_section;
   //   if (get_elf_shdr (filecontents->buffer,
   //                     ehdr.e_shoff + ehdr.e_shentsize * ehdr.e_shstrndx,
