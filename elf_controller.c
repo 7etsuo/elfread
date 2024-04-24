@@ -15,6 +15,18 @@
 #include "./include/fileio.h"
 #include "./include/my_elf.h"
 
+#define err_exit(msg)                                                         \
+  do                                                                          \
+    {                                                                         \
+      perror (msg);                                                           \
+      exit (EXIT_FAILURE);                                                    \
+    }                                                                         \
+  while (0);
+#define INDEX_ET_OS 6
+#define INDEX_ET_PROC 7
+#define ARRAY_SIZE(arr) (sizeof (arr) / sizeof ((arr)[0]))
+#define STRTABLE_MAX 255
+
 const char *elf_class_id[] = {
 #include "./include/e_class_strings.h"
 };
@@ -40,15 +52,24 @@ const char *elf_s_type_id[] = {
 static void print_phdr_main_header_titles (void);
 static void clean_controller (FileContents **filecontents);
 
+// elf header
 static int display_elf_header (void *);
+static void print_elf_header (const Elf64_Ehdr *ehdr);
+static Elf64_Half emit_e_type (const Elf64_Ehdr *ehdr);
+static Elf64_Half emit_ei_class (const Elf64_Ehdr *ehdr);
+static Elf64_Half emit_ei_data (const Elf64_Ehdr *ehdr);
+static Elf64_Half emit_ei_osabi (const Elf64_Ehdr *ehdr);
+static Elf64_Half emit_e_type (const Elf64_Ehdr *ehdr);
+
+static int display_program_header_table (void *);
+static int display_section_header_table (void *);
+
 static int disassemble_code_section (void *);
 static int display_symbol_table (void *);
 static int display_relocation_table (void *);
 static int display_dynamic_symbol_table (void *);
 static int display_dynamic_relocation_table (void *);
 static int display_dynamic_section (void *);
-static int display_program_header_table (void *);
-static int display_section_header_table (void *);
 static int display_string_table (void *);
 static int display_all (void *);
 static int exit_program (void *);
@@ -129,6 +150,110 @@ format_and_print (const char *label, const char *format, ...)
   return 0;
 }
 
+static Elf64_Half
+emit_ei_class (const Elf64_Ehdr *ehdr)
+{
+  Elf64_Half elf_ei_class = ehdr->e_ident[EI_CLASS];
+  if (elf_ei_class < ELFCLASS32 || elf_ei_class > ELFCLASS64)
+    elf_ei_class = ELFCLASSNONE;
+
+  return elf_ei_class;
+}
+
+static Elf64_Half
+emit_ei_data (const Elf64_Ehdr *ehdr)
+{
+  Elf64_Half elf_ei_data = ehdr->e_ident[EI_DATA];
+  if (elf_ei_data < ELFDATA2LSB || elf_ei_data > ELFDATA2MSB)
+    elf_ei_data = ELFDATANONE;
+
+  return elf_ei_data;
+}
+
+static Elf64_Half
+emit_ei_osabi (const Elf64_Ehdr *ehdr)
+{
+  Elf64_Half elf_ei_osabi = ehdr->e_ident[EI_OSABI];
+  if (elf_ei_osabi >= ELFOSABI_SOLARIS && elf_ei_osabi <= ELFOSABI_OPENBSD)
+    elf_ei_osabi -= 2;
+  else if (elf_ei_osabi >= ELFOSABI_ARM_AEABI)
+    elf_ei_osabi = (ARRAY_SIZE (elf_osabi_id) - 1);
+
+  return elf_ei_osabi;
+}
+
+static Elf64_Half
+emit_e_type (const Elf64_Ehdr *ehdr)
+{
+  Elf64_Half elf_e_type = ehdr->e_type;
+  if (elf_e_type > 5 && elf_e_type < ET_LOOS)
+    elf_e_type = ET_NONE;
+  else if (elf_e_type >= ET_LOOS && elf_e_type <= ET_HIOS)
+    elf_e_type = INDEX_ET_OS;
+  else if (elf_e_type >= ET_HIOS && elf_e_type <= ET_LOPROC)
+    elf_e_type = INDEX_ET_PROC;
+
+  return elf_e_type;
+}
+
+static void
+print_elf_header (const Elf64_Ehdr *ehdr)
+{
+  if (!ehdr)
+    {
+      fprintf (stderr, "Null pointer passed to print_elf_header\n");
+      return;
+    }
+
+  Elf64_Half elf_ei_class = emit_ei_class (ehdr);
+  Elf64_Half elf_ei_data = emit_ei_data (ehdr);
+  Elf64_Half elf_ei_osabi = emit_ei_osabi (ehdr);
+  Elf64_Half elf_e_type = emit_e_type (ehdr);
+
+  char buffer[1024]; // Increase this if necessary
+  char *buf_ptr = buffer;
+
+  buf_ptr += snprintf (buf_ptr, sizeof (buffer) - (buf_ptr - buffer),
+                       "ELF Header:\n  Magic:   ");
+
+  for (int i = 0; i < EI_NIDENT && buf_ptr - buffer < sizeof (buffer); i++)
+    buf_ptr += snprintf (buf_ptr, sizeof (buffer) - (buf_ptr - buffer),
+                         "%.2x ", ehdr->e_ident[i]);
+
+  buf_ptr += snprintf (
+      buf_ptr, sizeof (buffer) - (buf_ptr - buffer),
+      "\n"
+      "  Class:                               %s\n"
+      "  Data:                                %s\n"
+      "  Version:                             %d\n"
+      "  OS/ABI:                              %s\n"
+      "  ABI Version:                         %d\n"
+      "  Type:                                %s\n"
+      "  Machine:                             %s\n"
+      "  Version:                             0x%x (%s)\n"
+      "  Entry point address:                 0x%x\n"
+      "  Start of program headers:            %d (bytes into file)\n"
+      "  Start of section headers:            %d (bytes into file)\n"
+      "  Flags:                               0x%x\n"
+      "  Size of this header:                 %d (bytes)\n"
+      "  Size of program headers:             %d (bytes)\n"
+      "  Number of program headers:           %d\n"
+      "  Size of section headers:             %d (bytes)\n"
+      "  Number of section headers:           %d\n"
+      "  Section header string table index:   %d\n",
+      elf_class_id[elf_ei_class], elf_data_id[elf_ei_data],
+      (int)ehdr->e_ident[EI_VERSION], elf_osabi_id[elf_ei_osabi],
+      (int)ehdr->e_ident[EI_ABIVERSION], elf_e_type_id[elf_e_type],
+      ehdr->e_machine >= EM_NUM ? "special\n"
+                                : elf_e_machine_id[ehdr->e_machine],
+      ehdr->e_version, elf_e_version_id[ehdr->e_version], (int)ehdr->e_entry,
+      (int)ehdr->e_phoff, (int)ehdr->e_shoff, (int)ehdr->e_flags,
+      (int)ehdr->e_ehsize, (int)ehdr->e_phentsize, (int)ehdr->e_phnum,
+      (int)ehdr->e_shentsize, (int)ehdr->e_shnum, (int)ehdr->e_shstrndx);
+
+  elfprint (buffer);
+}
+
 static int
 display_elf_header (void *v)
 {
@@ -141,52 +266,7 @@ display_elf_header (void *v)
       return 1;
     }
 
-  format_and_print ("Magic:   ", "");
-  for (int i = 0; i < EI_NIDENT; i++)
-    {
-      format_and_print ("", "%02x ", ehdr.e_ident[i]);
-      if (i == EI_NIDENT - 1)
-        {
-          elfprint ("\n");
-        }
-    }
-
-  format_and_print ("Class:                             ", "%s\n",
-                    elf_class_id[ehdr.e_ident[EI_CLASS]]);
-  format_and_print ("Data:                              ", "%s\n",
-                    elf_data_id[ehdr.e_ident[EI_DATA]]);
-  format_and_print ("Version:                           ", "%s\n",
-                    ehdr.e_ident[EI_VERSION] ? "(current)" : "(invalid)");
-  format_and_print ("OS/ABI:                            ", "%s\n",
-                    elf_osabi_id[ehdr.e_ident[EI_OSABI]]);
-  format_and_print ("ABI Version:                       ", "%d\n",
-                    ehdr.e_ident[EI_ABIVERSION]);
-  format_and_print ("Type:                              ", "%s\n",
-                    elf_e_type_id[ehdr.e_type]);
-  format_and_print ("Machine:                           ", "%s\n",
-                    elf_e_machine_id[ehdr.e_machine]);
-  format_and_print ("Version:                           ", "%s\n",
-                    elf_e_version_id[ehdr.e_version]);
-  format_and_print ("Entry point address:               0x", "%lx\n",
-                    ehdr.e_entry);
-  format_and_print ("Start of program headers:          ",
-                    "%ld (bytes into file)\n", ehdr.e_phoff);
-  format_and_print ("Start of section headers:          ",
-                    "%ld (bytes into file)\n", ehdr.e_shoff);
-  format_and_print ("Flags:                             0x", "%x\n",
-                    ehdr.e_flags);
-  format_and_print ("Size of this header:               ", "%d (bytes)\n",
-                    ehdr.e_ehsize);
-  format_and_print ("Size of program headers:           ", "%d (bytes)\n",
-                    ehdr.e_phentsize);
-  format_and_print ("Number of program headers:         ", "%d\n",
-                    ehdr.e_phnum);
-  format_and_print ("Size of section headers:           ", "%d (bytes)\n",
-                    ehdr.e_shentsize);
-  format_and_print ("Number of section headers:         ", "%d\n",
-                    ehdr.e_shnum);
-  format_and_print ("Section header string table index: ", "%d\n",
-                    ehdr.e_shstrndx);
+  print_elf_header (&ehdr);
   print_and_wait ("\n");
 
   return 0;
