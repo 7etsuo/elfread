@@ -150,105 +150,44 @@ display_elf_header (void *v)
         }
     }
 
-  format_and_print ("Class:                             %s\n",
+  format_and_print ("Class:                             ", "%s\n",
                     elf_class_id[ehdr.e_ident[EI_CLASS]]);
-
-  char data_str[SIZE_TEMPBUF];
-  snprintf (data_str, sizeof (data_str),
-            "Data:                              %s\n",
-            elf_data_id[ehdr.e_ident[EI_DATA]]);
-
-  char version_str[SIZE_TEMPBUF];
-  snprintf (version_str, sizeof (version_str),
-            "Version:                           %d %s\n",
-            ehdr.e_ident[EI_VERSION],
-            ehdr.e_ident[EI_VERSION] ? "(current)" : "(invalid)");
-
-  char osabi_str[SIZE_TEMPBUF];
-  snprintf (osabi_str, sizeof (osabi_str),
-            "OS/ABI:                            %s\n",
-            elf_osabi_id[ehdr.e_ident[EI_OSABI]]);
-
-  char abiversion_str[SIZE_TEMPBUF];
-  snprintf (abiversion_str, sizeof (abiversion_str),
-            "ABI Version:                       %d\n",
-            ehdr.e_ident[EI_ABIVERSION]);
-
-  char type_str[SIZE_TEMPBUF];
-  snprintf (type_str, sizeof (type_str),
-            "Type:                              %s\n",
-            elf_e_type_id[ehdr.e_type]);
-
-  char machine_str[SIZE_TEMPBUF];
-  snprintf (machine_str, sizeof (machine_str),
-            "Machine:                           %s\n",
-            elf_e_machine_id[ehdr.e_machine]);
-
-  char version_str2[SIZE_TEMPBUF];
-  snprintf (version_str2, sizeof (version_str2),
-            "Version:                           0x%x %s\n", ehdr.e_version,
-            elf_e_version_id[ehdr.e_version]);
-
-  char entry_str[SIZE_TEMPBUF];
-  snprintf (entry_str, sizeof (entry_str),
-            "Entry point address:               0x%lx\n", ehdr.e_entry);
-
-  char phoff_str[SIZE_TEMPBUF];
-  snprintf (phoff_str, sizeof (phoff_str),
-            "Start of program headers:          %ld (bytes into file)\n",
-            ehdr.e_phoff);
-
-  char shoff_str[SIZE_TEMPBUF];
-  snprintf (shoff_str, sizeof (shoff_str),
-            "Start of section headers:          %ld (bytes into file)\n",
-            ehdr.e_shoff);
-
-  char flags_str[SIZE_TEMPBUF];
-  snprintf (flags_str, sizeof (flags_str),
-            "Flags:                             0x%x\n", ehdr.e_flags);
-
-  char ehsize_str[SIZE_TEMPBUF];
-  snprintf (ehsize_str, sizeof (ehsize_str),
-            "Size of this header:               %d (bytes)\n", ehdr.e_ehsize);
-
-  char phentsize_str[SIZE_TEMPBUF];
-  snprintf (phentsize_str, sizeof (phentsize_str),
-            "Size of program headers:           %d (bytes)\n",
-            ehdr.e_phentsize);
-
-  char phnum_str[SIZE_TEMPBUF];
-  snprintf (phnum_str, sizeof (phnum_str),
-            "Number of program headers:         %d\n", ehdr.e_phnum);
-
-  char shentsize_str[SIZE_TEMPBUF];
-  snprintf (shentsize_str, sizeof (shentsize_str),
-            "Size of section headers:           %d (bytes)\n",
-            ehdr.e_shentsize);
-
-  char shnum_str[SIZE_TEMPBUF];
-  snprintf (shnum_str, sizeof (shnum_str),
-            "Number of section headers:         %d\n", ehdr.e_shnum);
-
-  char shstrndx_str[SIZE_TEMPBUF];
-  snprintf (shstrndx_str, sizeof (shstrndx_str),
-            "Section header string table index: %d\n", ehdr.e_shstrndx);
-
-  elfprint (data_str);
-  elfprint (version_str);
-  elfprint (osabi_str);
-  elfprint (abiversion_str);
-  elfprint (type_str);
-  elfprint (machine_str);
-  elfprint (version_str2);
-  elfprint (entry_str);
-  elfprint (phoff_str);
-  elfprint (shoff_str);
-  elfprint (flags_str);
-  elfprint (ehsize_str);
-  elfprint (phentsize_str);
-  elfprint (shstrndx_str);
-
+  format_and_print ("Data:                              ", "%s\n",
+                    elf_data_id[ehdr.e_ident[EI_DATA]]);
+  format_and_print ("Version:                           ", "%s\n",
+                    ehdr.e_ident[EI_VERSION] ? "(current)" : "(invalid)");
+  format_and_print ("OS/ABI:                            ", "%s\n",
+                    elf_osabi_id[ehdr.e_ident[EI_OSABI]]);
+  format_and_print ("ABI Version:                       ", "%d\n",
+                    ehdr.e_ident[EI_ABIVERSION]);
+  format_and_print ("Type:                              ", "%s\n",
+                    elf_e_type_id[ehdr.e_type]);
+  format_and_print ("Machine:                           ", "%s\n",
+                    elf_e_machine_id[ehdr.e_machine]);
+  format_and_print ("Version:                           ", "%s\n",
+                    elf_e_version_id[ehdr.e_version]);
+  format_and_print ("Entry point address:               0x", "%lx\n",
+                    ehdr.e_entry);
+  format_and_print ("Start of program headers:          ",
+                    "%ld (bytes into file)\n", ehdr.e_phoff);
+  format_and_print ("Start of section headers:          ",
+                    "%ld (bytes into file)\n", ehdr.e_shoff);
+  format_and_print ("Flags:                             0x", "%x\n",
+                    ehdr.e_flags);
+  format_and_print ("Size of this header:               ", "%d (bytes)\n",
+                    ehdr.e_ehsize);
+  format_and_print ("Size of program headers:           ", "%d (bytes)\n",
+                    ehdr.e_phentsize);
+  format_and_print ("Number of program headers:         ", "%d\n",
+                    ehdr.e_phnum);
+  format_and_print ("Size of section headers:           ", "%d (bytes)\n",
+                    ehdr.e_shentsize);
+  format_and_print ("Number of section headers:         ", "%d\n",
+                    ehdr.e_shnum);
+  format_and_print ("Section header string table index: ", "%d\n",
+                    ehdr.e_shstrndx);
   print_and_wait ("\n");
+
   return 0;
 }
 
