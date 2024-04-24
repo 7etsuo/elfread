@@ -37,6 +37,7 @@ const char *elf_s_type_id[] = {
 #include "./include/s_type_strings.h"
 };
 
+static void print_phdr_main_header_titles (void);
 static void clean_controller (FileContents **filecontents);
 
 static int display_elf_header (void *);
@@ -226,40 +227,41 @@ display_program_header_table (void *v)
       get_elf_phdr (filecontents->buffer, i * ehdr.e_phentsize, &ehdr,
                     &(phdr[i]));
 
-      char buf[1000] = { 0 };
-      snprintf (buf, sizeof (buf), "[%3d] %-14s 0x%016lx 0x%016lx 0x%016lx\n",
-                i, get_p_type (phdr[i].p_type), phdr[i].p_offset,
-                phdr[i].p_vaddr, phdr[i].p_paddr);
-      elfprint (buf);
+      format_and_print ("", "[%3d] %-14s 0x%016lx 0x%016lx 0x%016lx\n", i,
+                        get_p_type (phdr[i].p_type), phdr[i].p_offset,
+                        phdr[i].p_vaddr, phdr[i].p_paddr);
 
       char flags_buf[4] = { 0 };
-      snprintf (buf, sizeof (buf), "%-20s 0x%016lx 0x%016lx %-6s 0x%06lx\n",
-                " ", phdr[i].p_filesz, phdr[i].p_memsz,
-                get_p_flags (phdr[i].p_flags, flags_buf), phdr[i].p_align);
-      elfprint (buf);
+      format_and_print ("", "%-20s 0x%016lx 0x%016lx %-6s 0x%06lx\n", " ",
+                        phdr[i].p_filesz, phdr[i].p_memsz,
+                        get_p_flags (phdr[i].p_flags, flags_buf),
+                        phdr[i].p_align);
     }
 
+#ifdef INTERP
   // [TODO]: Implement
   // .interp section is a null-terminated string that specifies the path name
   // of the interpreter.
-  //   Elf64_Shdr interp_section;
-  //   if (get_elf_shdr (filecontents->buffer,
-  //                     ehdr.e_shoff + ehdr.e_shentsize * ehdr.e_shstrndx,
-  //                     &ehdr, &interp_section)
-  //       != 0)
-  //     {
-  //       print_and_wait ("Failed to get INTERP section\n");
-  //       return 1;
-  //     }
-  //
-  //   char interp_path[interp_section.sh_size];
-  //   memcpy (interp_path, filecontents->buffer + interp_section.sh_offset,
-  //           interp_section.sh_size);
-  //   interp_path[interp_section.sh_size - 1] = '\0';
-  //
-  //   print_and_wait ("Interpreter path: ");
-  //   elfprint (interp_path);
-  //   print_and_wait ("\n");
+
+  Elf64_Shdr interp_section;
+  if (get_elf_shdr (filecontents->buffer,
+                    ehdr.e_shoff + ehdr.e_shentsize * ehdr.e_shstrndx, &ehdr,
+                    &interp_section)
+      != 0)
+    {
+      print_and_wait ("Failed to get INTERP section\n");
+      return 1;
+    }
+
+  char interp_path[interp_section.sh_size];
+  memcpy (interp_path, filecontents->buffer + interp_section.sh_offset,
+          interp_section.sh_size);
+  interp_path[interp_section.sh_size - 1] = '\0';
+
+  print_and_wait ("Interpreter path: ");
+  elfprint (interp_path);
+  print_and_wait ("\n");
+#endif // INTERP
 
   print_and_wait ("\n");
   return 0;
