@@ -318,14 +318,15 @@ display_program_header_table (void *v)
                         get_p_type (phdr[i].p_type), phdr[i].p_offset,
                         phdr[i].p_vaddr, phdr[i].p_paddr);
 
-      if (phdr[i].p_type == PT_INTERP) // [TODO]: Implement
+      if (phdr[i].p_type == PT_INTERP)
         {
           char interp_path[phdr[i].p_filesz];
           memcpy (interp_path, filecontents->buffer + phdr[i].p_offset,
                   phdr[i].p_filesz);
           interp_path[phdr[i].p_filesz - 1] = '\0';
           char interp_display_buffer[strlen (interp_path) + 100];
-          strcpy (interp_display_buffer, "      [Requesting program interpreter: ");
+          strcpy (interp_display_buffer,
+                  "      [Requesting program interpreter: ");
           strcat (interp_display_buffer, interp_path);
           strcat (interp_display_buffer, "]\n");
           elfprint (interp_display_buffer);
