@@ -297,9 +297,16 @@ display_program_header_table (void *v)
       return 1;
     }
 
+  Elf64_Half elf_e_type = emit_e_type (&ehdr);
+  Elf64_Phdr phdr[ehdr.e_phnum];
+  format_and_print ("",
+                    "\nElf file type is %s\nEntry point 0x%x\nThere are %d "
+                    "program headers, starting at offset %d\n\n",
+                    elf_e_type_id[elf_e_type], (int)ehdr.e_entry,
+                    (int)ehdr.e_phnum, (int)ehdr.e_phentsize);
+
   print_phdr_main_header_titles ();
 
-  Elf64_Phdr phdr[ehdr.e_phnum];
   memset (phdr, 0, sizeof (phdr));
 
   for (int i = 0; i < ehdr.e_phnum; i++)
@@ -311,37 +318,24 @@ display_program_header_table (void *v)
                         get_p_type (phdr[i].p_type), phdr[i].p_offset,
                         phdr[i].p_vaddr, phdr[i].p_paddr);
 
+      if (phdr[i].p_type == PT_INTERP) // [TODO]: Implement
+        {
+          char interp_path[phdr[i].p_filesz];
+          memcpy (interp_path, filecontents->buffer + phdr[i].p_offset,
+                  phdr[i].p_filesz);
+          interp_path[phdr[i].p_filesz - 1] = '\0';
+          char interp_display_buffer[strlen (interp_path) + 100];
+          strcpy (interp_display_buffer, "      [Requesting program interpreter: ");
+          strcat (interp_display_buffer, interp_path);
+          strcat (interp_display_buffer, "]\n");
+          elfprint (interp_display_buffer);
+        }
       char flags_buf[4] = { 0 };
       format_and_print ("", "%-20s 0x%016lx 0x%016lx %-6s 0x%06lx\n", " ",
                         phdr[i].p_filesz, phdr[i].p_memsz,
                         get_p_flags (phdr[i].p_flags, flags_buf),
                         phdr[i].p_align);
     }
-
-#ifdef INTERP
-  // [TODO]: Implement
-  // .interp section is a null-terminated string that specifies the path name
-  // of the interpreter.
-
-  Elf64_Shdr interp_section;
-  if (get_elf_shdr (filecontents->buffer,
-                    ehdr.e_shoff + ehdr.e_shentsize * ehdr.e_shstrndx, &ehdr,
-                    &interp_section)
-      != 0)
-    {
-      print_and_wait ("Failed to get INTERP section\n");
-      return 1;
-    }
-
-  char interp_path[interp_section.sh_size];
-  memcpy (interp_path, filecontents->buffer + interp_section.sh_offset,
-          interp_section.sh_size);
-  interp_path[interp_section.sh_size - 1] = '\0';
-
-  print_and_wait ("Interpreter path: ");
-  elfprint (interp_path);
-  print_and_wait ("\n");
-#endif // INTERP
 
   print_and_wait ("\n");
   return 0;
