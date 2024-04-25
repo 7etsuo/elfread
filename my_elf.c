@@ -206,7 +206,7 @@ get_elf_shdr (void *buffer, off_t offset, Elf64_Ehdr *ehdr, Elf64_Shdr *shdr)
       return -1;
     }
 
-  if (memcpy (shdr, (char *)buffer + ehdr->e_shoff + offset, ehdr->e_shentsize)
+  if (memcpy (shdr, (char *)buffer + ehdr->e_shoff + offset, ehdr->e_shentsize * ehdr->e_shnum)
       == NULL)
     {
       fprintf (stderr, "Failed to copy section headers.\n");

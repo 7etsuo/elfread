@@ -4,6 +4,7 @@
 #include <libelf.h>
 #endif
 
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +50,6 @@ const char *elf_s_type_id[] = {
 #include "./include/s_type_strings.h"
 };
 
-static void print_phdr_main_header_titles (void);
 static void clean_controller (FileContents **filecontents);
 
 // elf header
@@ -61,8 +61,13 @@ static Elf64_Half emit_ei_data (const Elf64_Ehdr *ehdr);
 static Elf64_Half emit_ei_osabi (const Elf64_Ehdr *ehdr);
 static Elf64_Half emit_e_type (const Elf64_Ehdr *ehdr);
 
+// program header
 static int display_program_header_table (void *);
+static void print_phdr_main_header_titles (void);
+
+// section header
 static int display_section_header_table (void *);
+static int get_s_type_index (Elf64_Word type);
 
 static int disassemble_code_section (void *);
 static int display_symbol_table (void *);
@@ -210,7 +215,7 @@ print_elf_header (const Elf64_Ehdr *ehdr)
   Elf64_Half elf_ei_osabi = emit_ei_osabi (ehdr);
   Elf64_Half elf_e_type = emit_e_type (ehdr);
 
-  char buffer[1024]; // Increase this if necessary
+  char buffer[1024];
   char *buf_ptr = buffer;
 
   buf_ptr += snprintf (buf_ptr, sizeof (buffer) - (buf_ptr - buffer),
@@ -343,9 +348,196 @@ display_program_header_table (void *v)
 }
 
 static int
+get_s_type_index (Elf64_Word type)
+{
+  int offs;
+  switch (type)
+    {
+    case SHT_PROGBITS:
+      offs = 1;
+      break;
+    case SHT_SYMTAB:
+      offs = 2;
+      break;
+    case SHT_STRTAB:
+      offs = 3;
+      break;
+    case SHT_RELA:
+      offs = 4;
+      break;
+    case SHT_HASH:
+      offs = 5;
+      break;
+    case SHT_DYNAMIC:
+      offs = 6;
+      break;
+    case SHT_NOTE:
+      offs = 7;
+      break;
+    case SHT_NOBITS:
+      offs = 8;
+      break;
+    case SHT_REL:
+      offs = 9;
+      break;
+    case SHT_SHLIB:
+      offs = 10;
+      break;
+    case SHT_DYNSYM:
+      offs = 11;
+      break;
+    case SHT_INIT_ARRAY:
+      offs = 12;
+      break;
+    case SHT_FINI_ARRAY:
+      offs = 13;
+      break;
+    case SHT_PREINIT_ARRAY:
+      offs = 14;
+      break;
+    case SHT_GROUP:
+      offs = 15;
+      break;
+    case SHT_SYMTAB_SHNDX:
+      offs = 16;
+      break;
+    case SHT_NUM:
+      offs = 17;
+      break;
+    case SHT_LOOS:
+      offs = 18;
+      break;
+    case SHT_GNU_ATTRIBUTES:
+      offs = 19;
+      break;
+    case SHT_GNU_HASH:
+      offs = 20;
+      break;
+    case SHT_GNU_LIBLIST:
+      offs = 21;
+      break;
+    case SHT_CHECKSUM:
+      offs = 22;
+      break;
+    case SHT_LOSUNW:
+      offs = 23;
+      break;
+    case SHT_SUNW_COMDAT:
+      offs = 24;
+      break;
+    case SHT_SUNW_syminfo:
+      offs = 25;
+      break;
+    case SHT_GNU_verdef:
+      offs = 26;
+      break;
+    case SHT_GNU_verneed:
+      offs = 27;
+      break;
+    case SHT_GNU_versym:
+      offs = 28;
+      break;
+    case SHT_LOPROC:
+      offs = 29;
+      break;
+    case SHT_HIPROC:
+      offs = 30;
+      break;
+    case SHT_LOUSER:
+      offs = 31;
+      break;
+    case SHT_HIUSER:
+      offs = 32;
+      break;
+    default:
+      offs = 0;
+    }
+  return offs;
+}
+
+static void
+print_section_header (const Elf64_Shdr *section, const Elf64_Ehdr *ehdr,
+                      const char *data)
+{
+  Elf64_Off stroff = section[ehdr->e_shstrndx].sh_offset;
+  int nrsz = (int)log10 ((double)ehdr->e_shnum) + 1;
+  char *nr = "Nr";
+  char *spc = " ";
+
+  format_and_print (
+      "",
+      "There are %d section headers, starting at offset 0x%.4x:\n"
+      "\n"
+      "Section Headers:\n"
+      "[%*s] Name                 Type             Address          Offset\n"
+      " %*s  Size                 EntSize          Flags            Link  "
+      "Info  Align\n",
+      (int)ehdr->e_shnum, ehdr->e_shoff, nrsz, nr, nrsz, spc);
+
+  for (int i = 0; i < ehdr->e_shnum; i++)
+    {
+      format_and_print (
+          "",
+          "[%*d] %-*s %-*s %-.*x %-.*x\n"
+          " %*s  %-.*x     %-.*x %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %4d  "
+          "%4d  %5d\n",
+          nrsz, i, 20, (data + stroff + section[i].sh_name), 16,
+          elf_s_type_id[get_s_type_index (section[i].sh_type)], 16,
+          section[i].sh_addr, 16, section[i].sh_offset, nrsz, spc, 16,
+          section[i].sh_size, 16, section[i].sh_entsize,
+          (section[i].sh_flags & SHF_WRITE ? 'W' : ' '),
+          (section[i].sh_flags & SHF_ALLOC ? 'A' : ' '),
+          (section[i].sh_flags & SHF_EXECINSTR ? 'X' : ' '),
+          (section[i].sh_flags & SHF_MERGE ? 'M' : ' '),
+          (section[i].sh_flags & SHF_STRINGS ? 'S' : ' '),
+          (section[i].sh_flags & SHF_INFO_LINK ? 'I' : ' '),
+          (section[i].sh_flags & SHF_LINK_ORDER ? 'L' : ' '),
+          (section[i].sh_flags & SHF_OS_NONCONFORMING ? 'O' : ' '),
+          (section[i].sh_flags & SHF_GROUP ? 'G' : ' '),
+          (section[i].sh_flags & SHF_TLS ? 'T' : ' '),
+          (section[i].sh_flags & SHF_COMPRESSED ? 'C' : ' '),
+          (section[i].sh_flags & (1 << 12) ? 'x' : ' '),
+          (section[i].sh_flags & SHF_MASKOS ? 'o' : ' '),
+          (section[i].sh_flags & SHF_EXCLUDE ? 'E' : ' '),
+          (section[i].sh_flags & SHF_ORDERED ? 'l' : ' '),
+          (section[i].sh_flags & SHF_MASKPROC ? 'p' : ' '), section[i].sh_link,
+          section[i].sh_info, section[i].sh_addralign);
+    }
+
+  format_and_print (
+      "Key to Flags:\n"
+      "  W (write), A (alloc), X (execute), M (merge), S (strings), I "
+      "(info),\n"
+      "  L (link order), O (extra OS processing required), G (group), T "
+      "(TLS),\n"
+      "  C (compressed), x (unknown), o (OS specific), E (exclude),\n"
+      "  l (large), p (processor specific)\n\n",
+      "");
+}
+
+static int
 display_section_header_table (void *v)
 {
-  print_and_wait ("Display section header table\n");
+  FileContents *filecontents = (FileContents *)v;
+
+  Elf64_Ehdr ehdr = { 0 };
+  if (get_elf_header (filecontents->buffer, filecontents->length, &ehdr) != 0)
+    {
+      print_and_wait ("Failed to get ELF header\n");
+      return 1;
+    }
+
+  Elf64_Shdr shdr[ehdr.e_shnum];
+  if (get_elf_shdr (filecontents->buffer, 0, &ehdr, shdr) != 0)
+    {
+      print_and_wait ("Failed to get section header\n");
+      return 1;
+    }
+
+  print_section_header (shdr, &ehdr, filecontents->buffer);
+
+  print_and_wait ("\n");
+
   return 0;
 }
 
