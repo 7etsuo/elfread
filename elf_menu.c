@@ -5,9 +5,13 @@
 #include "./include/elf_menu.h"
 #include "./include/my_elf.h"
 
+#define LARGE_PAD_HEIGHT 100 // Arbitrarily large to accommodate large content
+#define LARGE_PAD_WIDTH 100  // Adjust based on expected width of content
+
 int exit_program (void *);
 
-static void init_screen (void);
+static int init_menu_pad (void);
+static int init_screen (void);
 static void cleanup_screen (void);
 static void draw_menu (int highlight);
 static int init_MenuAction (MenuConfig *config);
@@ -17,8 +21,24 @@ static int num_menu_items = 0;
 static const char *title = NULL;
 static void *data = NULL;
 
+static int top_line = 0;
+static WINDOW *menu_pad = NULL;
+
+static int
+init_menu_pad (void)
+{
+  menu_pad = newpad (LARGE_PAD_HEIGHT, LARGE_PAD_WIDTH);
+  if (menu_pad == NULL)
+    {
+      perror ("Failed to create a reasonably sized pad");
+      return -1;
+    }
+
+  return 0;
+}
+
 static void
-init_screen (void)
+do_init_screen (void)
 {
   initscr ();
   cbreak ();
@@ -26,6 +46,16 @@ init_screen (void)
 
   intrflush (stdscr, FALSE);
   keypad (stdscr, TRUE);
+}
+
+static int
+init_screen (void)
+{
+  do_init_screen ();
+
+  int ret = init_menu_pad ();
+
+  return ret;
 }
 
 static void
@@ -99,7 +129,10 @@ init_elf_menu (MenuConfig *config)
 void
 do_elf_menu (void)
 {
-  init_screen ();
+  if (init_screen () == -1)
+    {
+      return;
+    }
 
   int highlight = 0;
   int choice = 0;

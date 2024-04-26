@@ -21,11 +21,16 @@ OBJ = $(SRC:.c=.o)
 # Executable
 EXEC = main 
 
+EXEC_OTHER = elf_menu \
+	     my_elf \
+	     elf_controller \
+	     fileio
+
 CLEAN = main \
-       elf_menu \
-       my_elf \
-       elf_controller \
-       fileio
+	elf_menu \
+	my_elf \
+	elf_controller \
+	fileio
 
 # create the rest of the makefile
 all: $(EXEC)
@@ -37,7 +42,7 @@ $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(EXEC) 
+	rm -f $(OBJ) $(EXEC) $(EXEC_OTHER)
 
 .PHONY: all clean
 
