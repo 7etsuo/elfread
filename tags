@@ -1,0 +1,256 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ARRAY_SIZE	elf_controller.c	/^#define ARRAY_SIZE(/;"	d	file:
+ARRAY_SIZE	no_build/elfread.c	/^#define ARRAY_SIZE(/;"	d	file:
+CC	Makefile	/^CC = gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -Wall -pedantic -std=c99 -lcapstone -lncurses -lelf -g$/;"	m
+CLEAN	Makefile	/^CLEAN = main \\$/;"	m
+DT_RELR	include/libelf.h	/^ #define DT_RELR /;"	d
+DT_RELRENT	include/libelf.h	/^ #define DT_RELRENT /;"	d
+DT_RELRSZ	include/libelf.h	/^ #define DT_RELRSZ /;"	d
+ELFCOMPRESS_HIOS	include/libelf.h	/^ #define ELFCOMPRESS_HIOS /;"	d
+ELFCOMPRESS_HIPROC	include/libelf.h	/^ #define ELFCOMPRESS_HIPROC /;"	d
+ELFCOMPRESS_LOOS	include/libelf.h	/^ #define ELFCOMPRESS_LOOS /;"	d
+ELFCOMPRESS_LOPROC	include/libelf.h	/^ #define ELFCOMPRESS_LOPROC /;"	d
+ELFCOMPRESS_ZLIB	include/libelf.h	/^ #define ELFCOMPRESS_ZLIB /;"	d
+ELFCOMPRESS_ZSTD	include/libelf.h	/^ #define ELFCOMPRESS_ZSTD /;"	d
+ELF_CHF_FORCE	include/libelf.h	/^  ELF_CHF_FORCE = 0x1$/;"	e	enum:__anon7
+ELF_CHF_FORCE	include/libelf.h	/^#define ELF_CHF_FORCE /;"	d
+ELF_CONTROLLER_H	include/elf_controller.h	/^#define ELF_CONTROLLER_H$/;"	d
+ELF_C_CLR	include/libelf.h	/^  ELF_C_CLR,			\/* Clear flag.  *\/$/;"	e	enum:__anon5
+ELF_C_EMPTY	include/libelf.h	/^  ELF_C_EMPTY,			\/* Copy basic file data but not the content. *\/$/;"	e	enum:__anon5
+ELF_C_FDDONE	include/libelf.h	/^  ELF_C_FDDONE,			\/* Signal that file descriptor will not be$/;"	e	enum:__anon5
+ELF_C_FDREAD	include/libelf.h	/^  ELF_C_FDREAD,			\/* Read rest of data so that file descriptor$/;"	e	enum:__anon5
+ELF_C_NULL	include/libelf.h	/^  ELF_C_NULL,			\/* Nothing, terminate, or compute only.  *\/$/;"	e	enum:__anon5
+ELF_C_NUM	include/libelf.h	/^  ELF_C_NUM$/;"	e	enum:__anon5
+ELF_C_RDWR	include/libelf.h	/^  ELF_C_RDWR,			\/* Read and write .. *\/$/;"	e	enum:__anon5
+ELF_C_RDWR_MMAP	include/libelf.h	/^  ELF_C_RDWR_MMAP,		\/* Read and write, with mmap.  *\/$/;"	e	enum:__anon5
+ELF_C_READ	include/libelf.h	/^  ELF_C_READ,			\/* Read .. *\/$/;"	e	enum:__anon5
+ELF_C_READ_MMAP	include/libelf.h	/^  ELF_C_READ_MMAP,		\/* Read, but mmap the file if possible.  *\/$/;"	e	enum:__anon5
+ELF_C_READ_MMAP_PRIVATE	include/libelf.h	/^  ELF_C_READ_MMAP_PRIVATE,	\/* Read, but memory is writable, results are$/;"	e	enum:__anon5
+ELF_C_SET	include/libelf.h	/^  ELF_C_SET,			\/* Set flag.  *\/$/;"	e	enum:__anon5
+ELF_C_WRITE	include/libelf.h	/^  ELF_C_WRITE,			\/* Write .. *\/$/;"	e	enum:__anon5
+ELF_C_WRITE_MMAP	include/libelf.h	/^  ELF_C_WRITE_MMAP,		\/* Write, with mmap.  *\/$/;"	e	enum:__anon5
+ELF_F_DIRTY	include/libelf.h	/^  ELF_F_DIRTY = 0x1,$/;"	e	enum:__anon6
+ELF_F_DIRTY	include/libelf.h	/^#define ELF_F_DIRTY	/;"	d
+ELF_F_LAYOUT	include/libelf.h	/^  ELF_F_LAYOUT = 0x4,$/;"	e	enum:__anon6
+ELF_F_LAYOUT	include/libelf.h	/^#define ELF_F_LAYOUT	/;"	d
+ELF_F_PERMISSIVE	include/libelf.h	/^  ELF_F_PERMISSIVE = 0x8$/;"	e	enum:__anon6
+ELF_F_PERMISSIVE	include/libelf.h	/^#define ELF_F_PERMISSIVE	/;"	d
+ELF_K_AR	include/libelf.h	/^  ELF_K_AR,			\/* Archive.  *\/$/;"	e	enum:__anon8
+ELF_K_COFF	include/libelf.h	/^  ELF_K_COFF,			\/* Stupid old COFF.  *\/$/;"	e	enum:__anon8
+ELF_K_ELF	include/libelf.h	/^  ELF_K_ELF,			\/* ELF file.  *\/$/;"	e	enum:__anon8
+ELF_K_NONE	include/libelf.h	/^  ELF_K_NONE,			\/* Unknown.  *\/$/;"	e	enum:__anon8
+ELF_K_NUM	include/libelf.h	/^  ELF_K_NUM$/;"	e	enum:__anon8
+ELF_MENU_H	include/elf_menu.h	/^#define ELF_MENU_H$/;"	d
+ELF_T_ADDR	include/libelf.h	/^  ELF_T_ADDR,                   \/* Elf32_Addr, Elf64_Addr, ... *\/$/;"	e	enum:__anon3
+ELF_T_AUXV	include/libelf.h	/^  ELF_T_AUXV,			\/* Elf32_auxv_t, Elf64_auxv_t, ... *\/$/;"	e	enum:__anon3
+ELF_T_BYTE	include/libelf.h	/^  ELF_T_BYTE,                   \/* unsigned char *\/$/;"	e	enum:__anon3
+ELF_T_CHDR	include/libelf.h	/^  ELF_T_CHDR,			\/* Compressed, Elf32_Chdr, Elf64_Chdr, ... *\/$/;"	e	enum:__anon3
+ELF_T_DYN	include/libelf.h	/^  ELF_T_DYN,                    \/* Dynamic section record.  *\/$/;"	e	enum:__anon3
+ELF_T_EHDR	include/libelf.h	/^  ELF_T_EHDR,                   \/* ELF header.  *\/$/;"	e	enum:__anon3
+ELF_T_GNUHASH	include/libelf.h	/^  ELF_T_GNUHASH,		\/* GNU-style hash section.  *\/$/;"	e	enum:__anon3
+ELF_T_HALF	include/libelf.h	/^  ELF_T_HALF,                   \/* Elf32_Half, Elf64_Half, ... *\/$/;"	e	enum:__anon3
+ELF_T_LIB	include/libelf.h	/^  ELF_T_LIB,			\/* Elf32_Lib, Elf64_Lib, ... *\/$/;"	e	enum:__anon3
+ELF_T_MOVE	include/libelf.h	/^  ELF_T_MOVE,			\/* Elf32_Move, Elf64_Move, ... *\/$/;"	e	enum:__anon3
+ELF_T_NHDR	include/libelf.h	/^  ELF_T_NHDR,                   \/* Elf32_Nhdr, Elf64_Nhdr, ... *\/$/;"	e	enum:__anon3
+ELF_T_NHDR8	include/libelf.h	/^  ELF_T_NHDR8,			\/* Special GNU Properties note.  Same as Nhdr,$/;"	e	enum:__anon3
+ELF_T_NUM	include/libelf.h	/^  ELF_T_NUM$/;"	e	enum:__anon3
+ELF_T_OFF	include/libelf.h	/^  ELF_T_OFF,                    \/* Elf32_Off, Elf64_Off, ... *\/$/;"	e	enum:__anon3
+ELF_T_PHDR	include/libelf.h	/^  ELF_T_PHDR,                   \/* Program header.  *\/$/;"	e	enum:__anon3
+ELF_T_REL	include/libelf.h	/^  ELF_T_REL,                    \/* Relocation entry.  *\/$/;"	e	enum:__anon3
+ELF_T_RELA	include/libelf.h	/^  ELF_T_RELA,                   \/* Relocation entry with addend.  *\/$/;"	e	enum:__anon3
+ELF_T_RELR	include/libelf.h	/^  ELF_T_RELR,			\/* Relative relocation entry.  *\/$/;"	e	enum:__anon3
+ELF_T_SHDR	include/libelf.h	/^  ELF_T_SHDR,                   \/* Section header.  *\/$/;"	e	enum:__anon3
+ELF_T_SWORD	include/libelf.h	/^  ELF_T_SWORD,                  \/* Elf32_Sword, Elf64_Sword, ... *\/$/;"	e	enum:__anon3
+ELF_T_SXWORD	include/libelf.h	/^  ELF_T_SXWORD,                 \/* Elf32_Sxword, Elf64_Sxword, ... *\/$/;"	e	enum:__anon3
+ELF_T_SYM	include/libelf.h	/^  ELF_T_SYM,                    \/* Symbol record.  *\/$/;"	e	enum:__anon3
+ELF_T_SYMINFO	include/libelf.h	/^  ELF_T_SYMINFO,		\/* Elf32_Syminfo, Elf64_Syminfo, ... *\/$/;"	e	enum:__anon3
+ELF_T_VDAUX	include/libelf.h	/^  ELF_T_VDAUX,                  \/* Elf32_Verdaux, Elf64_Verdaux, ... *\/$/;"	e	enum:__anon3
+ELF_T_VDEF	include/libelf.h	/^  ELF_T_VDEF,                   \/* Elf32_Verdef, Elf64_Verdef, ... *\/$/;"	e	enum:__anon3
+ELF_T_VNAUX	include/libelf.h	/^  ELF_T_VNAUX,                  \/* Elf32_Vernaux, Elf64_Vernaux, ... *\/$/;"	e	enum:__anon3
+ELF_T_VNEED	include/libelf.h	/^  ELF_T_VNEED,                  \/* Elf32_Verneed, Elf64_Verneed, ... *\/$/;"	e	enum:__anon3
+ELF_T_WORD	include/libelf.h	/^  ELF_T_WORD,                   \/* Elf32_Word, Elf64_Word, ... *\/$/;"	e	enum:__anon3
+ELF_T_XWORD	include/libelf.h	/^  ELF_T_XWORD,                  \/* Elf32_Xword, Elf64_Xword, ... *\/$/;"	e	enum:__anon3
+EXEC	Makefile	/^EXEC = main $/;"	m
+E_CLASS_STRINGS	include/e_class_strings.h	/^#define E_CLASS_STRINGS$/;"	d
+E_DATA_STRINGS	include/e_data_strings.h	/^#define E_DATA_STRINGS$/;"	d
+E_MACHINE_STRINGS	include/e_machine_strings.h	/^#define E_MACHINE_STRINGS$/;"	d
+E_OSABI_STRINGS	include/e_osabi_strings.h	/^#define E_OSABI_STRINGS$/;"	d
+E_TYPE_STRINGS	include/e_type_strings.h	/^#define E_TYPE_STRINGS$/;"	d
+E_VERSION_STRINGS	include/e_version_strings.h	/^#define E_VERSION_STRINGS$/;"	d
+Elf	include/libelf.h	/^typedef struct Elf Elf;$/;"	t	typeref:struct:Elf
+Elf32_Chdr	include/libelf.h	/^ } Elf32_Chdr;$/;"	t	typeref:struct:__anon1
+Elf32_Relr	include/libelf.h	/^ typedef Elf32_Word     Elf32_Relr;$/;"	t
+Elf64_Chdr	include/libelf.h	/^ } Elf64_Chdr;$/;"	t	typeref:struct:__anon2
+Elf64_Relr	include/libelf.h	/^ typedef Elf64_Xword    Elf64_Relr;$/;"	t
+Elf_Arhdr	include/libelf.h	/^} Elf_Arhdr;$/;"	t	typeref:struct:__anon9
+Elf_Arsym	include/libelf.h	/^} Elf_Arsym;$/;"	t	typeref:struct:__anon10
+Elf_Cmd	include/libelf.h	/^} Elf_Cmd;$/;"	t	typeref:enum:__anon5
+Elf_Data	include/libelf.h	/^} Elf_Data;$/;"	t	typeref:struct:__anon4
+Elf_Kind	include/libelf.h	/^} Elf_Kind;$/;"	t	typeref:enum:__anon8
+Elf_Scn	include/libelf.h	/^typedef struct Elf_Scn Elf_Scn;$/;"	t	typeref:struct:Elf_Scn
+Elf_Type	include/libelf.h	/^} Elf_Type;$/;"	t	typeref:enum:__anon3
+FILEIO_H	include/fileio.h	/^#define FILEIO_H$/;"	d
+FileContents	include/fileio.h	/^} FileContents;$/;"	t	typeref:struct:__anon11
+INDEX_ET_OS	elf_controller.c	/^#define INDEX_ET_OS /;"	d	file:
+INDEX_ET_OS	no_build/elfread.c	/^#define INDEX_ET_OS /;"	d	file:
+INDEX_ET_PROC	elf_controller.c	/^#define INDEX_ET_PROC /;"	d	file:
+INDEX_ET_PROC	no_build/elfread.c	/^#define INDEX_ET_PROC /;"	d	file:
+MAX_MENU_ITEMS	include/elf_menu.h	/^#define MAX_MENU_ITEMS /;"	d
+MY_ELF_H	include/my_elf.h	/^#define MY_ELF_H$/;"	d
+MenuAction	include/elf_menu.h	/^typedef int (*MenuAction) (void *);$/;"	t
+MenuConfig	include/elf_menu.h	/^} MenuConfig;$/;"	t	typeref:struct:_MenuConfig
+MenuItem	include/elf_menu.h	/^} MenuItem;$/;"	t	typeref:struct:_MenuItem
+OBJ	Makefile	/^OBJ = $(SRC:.c=.o)$/;"	m
+PATH_MAX	include/fileio.h	/^#define PATH_MAX /;"	d
+PHDR_MAIN_HEADER_TITLES_FORMAT	include/elf_controller.h	/^#define PHDR_MAIN_HEADER_TITLES_FORMAT /;"	d
+PHDR_SUBHEADER_TITLES_FORMAT	include/elf_controller.h	/^#define PHDR_SUBHEADER_TITLES_FORMAT /;"	d
+SHF_COMPRESSED	include/libelf.h	/^ #define SHF_COMPRESSED /;"	d
+SHT_RELR	include/libelf.h	/^ #define SHT_RELR /;"	d
+SIZE_TEMPBUF	include/elf_controller.h	/^#define SIZE_TEMPBUF /;"	d
+SRC	Makefile	/^SRC = main.c \\$/;"	m
+STRINGS_GLOBAL_H	include/strings_global.h	/^#define STRINGS_GLOBAL_H$/;"	d
+STRTABLE_MAX	elf_controller.c	/^#define STRTABLE_MAX /;"	d	file:
+STRTABLE_MAX	no_build/elfread.c	/^#define STRTABLE_MAX /;"	d	file:
+S_TYPE_STRINGS	include/s_type_strings.h	/^#define S_TYPE_STRINGS$/;"	d
+_LIBELF_H	include/libelf.h	/^#define _LIBELF_H /;"	d
+_MenuConfig	include/elf_menu.h	/^typedef struct _MenuConfig$/;"	s
+_MenuItem	include/elf_menu.h	/^typedef struct _MenuItem$/;"	s
+__const_attribute__	include/libelf.h	/^# define __const_attribute__ /;"	d
+__const_attribute__	include/libelf.h	/^# define __const_attribute__$/;"	d
+__deprecated_attribute__	include/libelf.h	/^# define __deprecated_attribute__ /;"	d
+__deprecated_attribute__	include/libelf.h	/^# define __deprecated_attribute__$/;"	d
+__libdw_extern_inline	include/libelf.h	/^# define __libdw_extern_inline /;"	d
+__nonnull_attribute__	include/libelf.h	/^# define __nonnull_attribute__(/;"	d
+__noreturn_attribute__	include/libelf.h	/^#define __noreturn_attribute__ /;"	d
+__noreturn_attribute__	include/libelf.h	/^#define __noreturn_attribute__$/;"	d
+__pure_attribute__	include/libelf.h	/^# define __pure_attribute__ /;"	d
+__pure_attribute__	include/libelf.h	/^# define __pure_attribute__$/;"	d
+action	include/elf_menu.h	/^  MenuAction action;$/;"	m	struct:_MenuItem
+allocate_buffer_for_file	fileio.c	/^allocate_buffer_for_file (FILE *file, FileContents *file_contents)$/;"	f
+app_runner	main.c	/^app_runner (const char *const filename)$/;"	f
+ar_date	include/libelf.h	/^  time_t ar_date;		\/* File date.  *\/$/;"	m	struct:__anon9
+ar_gid	include/libelf.h	/^  gid_t ar_gid;			\/* Group ID.  *\/$/;"	m	struct:__anon9
+ar_mode	include/libelf.h	/^  mode_t ar_mode;		\/* File mode.  *\/$/;"	m	struct:__anon9
+ar_name	include/libelf.h	/^  char *ar_name;		\/* Name of archive member.  *\/$/;"	m	struct:__anon9
+ar_rawname	include/libelf.h	/^  char *ar_rawname;		\/* Original name of archive member.  *\/$/;"	m	struct:__anon9
+ar_size	include/libelf.h	/^  int64_t ar_size;		\/* File size.  *\/$/;"	m	struct:__anon9
+ar_uid	include/libelf.h	/^  uid_t ar_uid;			\/* User ID.  *\/$/;"	m	struct:__anon9
+as_hash	include/libelf.h	/^  unsigned long int as_hash;	\/* Hash value of the name.  *\/$/;"	m	struct:__anon10
+as_name	include/libelf.h	/^  char *as_name;		\/* Symbol name.  *\/$/;"	m	struct:__anon10
+as_off	include/libelf.h	/^  size_t as_off;		\/* Offset for this file in the archive.  *\/$/;"	m	struct:__anon10
+buffer	include/fileio.h	/^  char *buffer;$/;"	m	struct:__anon11
+ch_addralign	include/libelf.h	/^   Elf32_Word   ch_addralign;   \/* Uncompressed data alignment.  *\/$/;"	m	struct:__anon1
+ch_addralign	include/libelf.h	/^   Elf64_Xword  ch_addralign;   \/* Uncompressed data alignment.  *\/$/;"	m	struct:__anon2
+ch_reserved	include/libelf.h	/^   Elf64_Word   ch_reserved;$/;"	m	struct:__anon2
+ch_size	include/libelf.h	/^   Elf32_Word   ch_size;        \/* Uncompressed data size.  *\/$/;"	m	struct:__anon1
+ch_size	include/libelf.h	/^   Elf64_Xword  ch_size;        \/* Uncompressed data size.  *\/$/;"	m	struct:__anon2
+ch_type	include/libelf.h	/^   Elf32_Word   ch_type;        \/* Compression format.  *\/$/;"	m	struct:__anon1
+ch_type	include/libelf.h	/^   Elf64_Word   ch_type;        \/* Compression format.  *\/$/;"	m	struct:__anon2
+clean_controller	elf_controller.c	/^clean_controller (FileContents **filecontents)$/;"	f	file:
+cleanup_screen	elf_menu.c	/^cleanup_screen (void)$/;"	f	file:
+d_align	include/libelf.h	/^  size_t d_align;		\/* Alignment in section.  *\/$/;"	m	struct:__anon4
+d_buf	include/libelf.h	/^  void *d_buf;			\/* Pointer to the actual data.  *\/$/;"	m	struct:__anon4
+d_off	include/libelf.h	/^  int64_t d_off;		\/* Offset into section.  *\/$/;"	m	struct:__anon4
+d_size	include/libelf.h	/^  size_t d_size;		\/* Size in bytes.  *\/$/;"	m	struct:__anon4
+d_type	include/libelf.h	/^  Elf_Type d_type;		\/* Type of this piece of data.  *\/$/;"	m	struct:__anon4
+d_version	include/libelf.h	/^  unsigned int d_version;	\/* ELF version.  *\/$/;"	m	struct:__anon4
+data	elf_menu.c	/^static void *data = NULL;$/;"	v	file:
+data	include/elf_menu.h	/^  void *data;$/;"	m	struct:_MenuConfig
+disassemble_code_section	elf_controller.c	/^disassemble_code_section (void *v)$/;"	f	file:
+display_all	elf_controller.c	/^display_all (void *v)$/;"	f	file:
+display_dynamic_relocation_table	elf_controller.c	/^display_dynamic_relocation_table (void *v)$/;"	f	file:
+display_dynamic_section	elf_controller.c	/^display_dynamic_section (void *v)$/;"	f	file:
+display_dynamic_symbol_table	elf_controller.c	/^display_dynamic_symbol_table (void *v)$/;"	f	file:
+display_elf_header	elf_controller.c	/^display_elf_header (void *v)$/;"	f	file:
+display_elf_header	no_build/elfread.c	/^display_elf_header (const Elf64_Ehdr *ehdr)$/;"	f
+display_elf_p_segment_header	no_build/elfread.c	/^display_elf_p_segment_header (const Elf64_Phdr *segment,$/;"	f
+display_elf_s_section_header	no_build/elfread.c	/^display_elf_s_section_header (const Elf64_Shdr *section,$/;"	f
+display_program_header_table	elf_controller.c	/^display_program_header_table (void *v)$/;"	f	file:
+display_relocation_table	elf_controller.c	/^display_relocation_table (void *v)$/;"	f	file:
+display_section_header_table	elf_controller.c	/^display_section_header_table (void *v)$/;"	f	file:
+display_string_table	elf_controller.c	/^display_string_table (void *v)$/;"	f	file:
+display_symbol_table	elf_controller.c	/^display_symbol_table (void *v)$/;"	f	file:
+do_elf_menu	elf_menu.c	/^do_elf_menu (void)$/;"	f
+do_run_controller	elf_controller.c	/^do_run_controller (const char *const filename)$/;"	f
+draw_menu	elf_menu.c	/^draw_menu (int highlight)$/;"	f	file:
+elf_class_id	elf_controller.c	/^const char *elf_class_id[] = {$/;"	v
+elf_class_id	no_build/elfread.c	/^const char *elf_class_id[ELFCLASSNUM] = {$/;"	v
+elf_data_id	elf_controller.c	/^const char *elf_data_id[] = {$/;"	v
+elf_data_id	no_build/elfread.c	/^const char *elf_data_id[ELFDATANUM] = {$/;"	v
+elf_e_machine_id	elf_controller.c	/^const char *elf_e_machine_id[] = {$/;"	v
+elf_e_machine_id	no_build/elfread.c	/^const char *elf_e_machine_id[EM_NUM] = {$/;"	v
+elf_e_type_id	elf_controller.c	/^const char *elf_e_type_id[] = {$/;"	v
+elf_e_type_id	no_build/elfread.c	/^const char *elf_e_type_id[] = {$/;"	v
+elf_e_version_id	elf_controller.c	/^const char *elf_e_version_id[] = {$/;"	v
+elf_e_version_id	no_build/elfread.c	/^const char *elf_e_version_id[EV_NUM] = {$/;"	v
+elf_osabi_id	elf_controller.c	/^const char *elf_osabi_id[] = {$/;"	v
+elf_osabi_id	no_build/elfread.c	/^const char *elf_osabi_id[] = {$/;"	v
+elf_s_type_id	elf_controller.c	/^const char *elf_s_type_id[] = {$/;"	v
+elf_s_type_id	no_build/elfread.c	/^const char *elf_s_type_id[] = {$/;"	v
+elfprint	elf_menu.c	/^elfprint (const char *str)$/;"	f
+emit_e_type	elf_controller.c	/^emit_e_type (const Elf64_Ehdr *ehdr)$/;"	f	file:
+emit_e_type	no_build/elfread.c	/^emit_e_type (const Elf64_Ehdr *ehdr)$/;"	f
+emit_e_version	no_build/elfread.c	/^emit_e_version (const Elf64_Ehdr *ehdr)$/;"	f
+emit_ei_class	elf_controller.c	/^emit_ei_class (const Elf64_Ehdr *ehdr)$/;"	f	file:
+emit_ei_class	no_build/elfread.c	/^emit_ei_class (const Elf64_Ehdr *ehdr)$/;"	f
+emit_ei_data	elf_controller.c	/^emit_ei_data (const Elf64_Ehdr *ehdr)$/;"	f	file:
+emit_ei_data	no_build/elfread.c	/^emit_ei_data (const Elf64_Ehdr *ehdr)$/;"	f
+emit_ei_osabi	elf_controller.c	/^emit_ei_osabi (const Elf64_Ehdr *ehdr)$/;"	f	file:
+emit_ei_osabi	no_build/elfread.c	/^emit_ei_osabi (const Elf64_Ehdr *ehdr)$/;"	f
+err_exit	elf_controller.c	/^#define err_exit(/;"	d	file:
+err_exit	no_build/elfread.c	/^#define err_exit(/;"	d	file:
+exit_program	elf_controller.c	/^exit_program (void *v)$/;"	f	file:
+format_and_print	elf_controller.c	/^format_and_print (const char *label, const char *format, ...)$/;"	f
+g_elf_file_header_flag	no_build/elfread.c	/^static int g_elf_file_header_flag = 0;$/;"	v	file:
+g_elf_help_flag	no_build/elfread.c	/^static int g_elf_help_flag = 0;$/;"	v	file:
+g_elf_prog_header_flag	no_build/elfread.c	/^static int g_elf_prog_header_flag = 0;$/;"	v	file:
+g_elf_section_header_flag	no_build/elfread.c	/^static int g_elf_section_header_flag = 0;$/;"	v	file:
+g_help_menu	no_build/elfread.c	/^const char *g_help_menu$/;"	v
+get_elf_header	my_elf.c	/^get_elf_header (void *buffer, size_t size, Elf64_Ehdr *ehdr)$/;"	f
+get_elf_phdr	my_elf.c	/^get_elf_phdr (void *buffer, off_t offset, Elf64_Ehdr *ehdr, Elf64_Phdr *phdr)$/;"	f
+get_elf_shdr	my_elf.c	/^get_elf_shdr (void *buffer, off_t offset, Elf64_Ehdr *ehdr, Elf64_Shdr *shdr)$/;"	f
+get_menu_input	elf_menu.c	/^get_menu_input (void)$/;"	f
+get_p_flags	my_elf.c	/^get_p_flags (uint32_t p_flags, char *buf)$/;"	f
+get_p_type	my_elf.c	/^get_p_type (unsigned int p_type)$/;"	f
+get_p_type_index	no_build/elfread.c	/^get_p_type_index (Elf64_Word type)$/;"	f
+get_s_type_index	elf_controller.c	/^get_s_type_index (Elf64_Word type)$/;"	f	file:
+get_s_type_index	no_build/elfread.c	/^get_s_type_index (Elf64_Word type)$/;"	f
+init_MenuAction	elf_menu.c	/^init_MenuAction (MenuConfig *config)$/;"	f	file:
+init_elf_menu	elf_menu.c	/^init_elf_menu (MenuConfig *config)$/;"	f
+init_screen	elf_menu.c	/^init_screen (void)$/;"	f	file:
+item_count	include/elf_menu.h	/^  size_t item_count;$/;"	m	struct:_MenuConfig
+items	include/elf_menu.h	/^  const MenuItem *items;$/;"	m	struct:_MenuConfig
+length	include/fileio.h	/^  size_t length;$/;"	m	struct:__anon11
+main	fileio.c	/^main (int argc, char **argv)$/;"	f
+main	main.c	/^main (int argc, char *argv[])$/;"	f
+main	no_build/elfread.c	/^main (int argc, char **argv)$/;"	f
+menu_items	elf_controller.c	/^MenuItem menu_items[] = {$/;"	v
+menu_items	elf_menu.c	/^static MenuItem menu_items[MAX_MENU_ITEMS] = { 0 };$/;"	v	file:
+num_menu_items	elf_controller.c	/^int num_menu_items = sizeof (menu_items) \/ sizeof (MenuItem);$/;"	v
+num_menu_items	elf_menu.c	/^static int num_menu_items = 0;$/;"	v	file:
+print_and_wait	elf_menu.c	/^print_and_wait (const char *str)$/;"	f
+print_elf_header	elf_controller.c	/^print_elf_header (const Elf64_Ehdr *ehdr)$/;"	f	file:
+print_phdr_main_header_titles	elf_controller.c	/^print_phdr_main_header_titles (void)$/;"	f	file:
+print_section_header	elf_controller.c	/^print_section_header (const Elf64_Shdr *section, const Elf64_Ehdr *ehdr,$/;"	f	file:
+read_file_into_mem	no_build/elfread.c	/^read_file_into_mem (const char *filename, void **data_out, size_t *size_out)$/;"	f
+robust_fclose	fileio.c	/^robust_fclose (FILE *stream)$/;"	f
+robust_fopen	fileio.c	/^robust_fopen (const char *filename, const char *mode)$/;"	f
+robust_fopen_secure	fileio.c	/^robust_fopen_secure (const char *filename, const char *mode)$/;"	f
+robust_fread	fileio.c	/^robust_fread (void *ptr, size_t size, size_t nmemb, FILE *stream)$/;"	f
+robust_free	fileio.c	/^robust_free (void *ptr)$/;"	f
+robust_fseek	fileio.c	/^robust_fseek (FILE *stream, long offset, int whence)$/;"	f
+robust_ftell	fileio.c	/^robust_ftell (FILE *stream)$/;"	f
+robust_malloc	fileio.c	/^robust_malloc (size_t size)$/;"	f
+robust_read_file	fileio.c	/^robust_read_file (const char *filename)$/;"	f
+text	include/elf_menu.h	/^  const char *text;$/;"	m	struct:_MenuItem
+title	elf_menu.c	/^static const char *title = NULL;$/;"	v	file:
+title	include/elf_menu.h	/^  const char *title;$/;"	m	struct:_MenuConfig
+validate_elf_header	my_elf.c	/^validate_elf_header (const Elf64_Ehdr *ehdr)$/;"	f
+validate_elf_magic	my_elf.c	/^validate_elf_magic (const Elf64_Ehdr *ehdr)$/;"	f
+write_mem_to_file	no_build/elfread.c	/^write_mem_to_file (const char *filename, const void *data, size_t size)$/;"	f

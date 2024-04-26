@@ -11,13 +11,13 @@
 int
 app_runner (const char *const filename)
 {
-  return do_run_controller (filename);
+	return do_run_controller (filename);
 }
 
 int
 main (int argc, char *argv[])
 {
-  char *filename = argc == 2 ? argv[1] : "testelf";
+	char *filename = argc == 2 ? argv[1] : "testelf";
 
-  return app_runner (filename);
+	return app_runner (filename);
 }

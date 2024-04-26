@@ -11,7 +11,17 @@ INCLUDES=-I./include
 LFLAGS=
 
 # Define any libraries to link into executable
-LIBS=-lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+LIBS= -lglfw -ldl -lpthread
+
+# Detect the operating system
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Linux)
+	LIBS += -lGL -lX11 -lXrandr -lXi 
+endif
+ifeq ($(UNAME_S),Darwin)
+	LIBS += -framework OpenGL -framework Cocoa 
+endif
 
 # Automatically find all .c files in the current directory
 SRCS=$(wildcard *.c)
