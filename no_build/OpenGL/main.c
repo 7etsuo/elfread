@@ -4,9 +4,32 @@
 
 void framebuffer_size_callback (GLFWwindow *window, int width, int height);
 void process_input (GLFWwindow *window);
+int glfw_init_and_configure (void);
+GLFWwindow *glfw_window_creation (void);
+int glfw_load_opengl_function_pointers (void);
+void glfw_render_loop (GLFWwindow *window);
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
 int
 main (int argc, char **argv)
+{
+  int ret = 1;
+
+  GLFWwindow *window = glfw_do_init ();
+  if (window)
+    {
+      ret = 0;
+      glfw_render_loop (window);
+    }
+
+  glfwTerminate ();
+  return ret;
+}
+
+int
+glfw_init_and_configure (void)
 {
   if (!glfwInit ())
     {
@@ -23,37 +46,68 @@ main (int argc, char **argv)
 #if defined(__APPLE__)
   glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+}
 
-  GLFWwindow *window = glfwCreateWindow (800, 600, "LearnOpenGL", NULL, NULL);
+GLFWwindow *
+glfw_window_creation (void)
+{
+  GLFWwindow *window
+      = glfwCreateWindow (SCR_WIDTH, SCR_HEIGHT, "OpenGL", NULL, NULL);
   if (!window)
     {
       fprintf (stderr, "Failed to create GLFW window\n");
-      glfwTerminate ();
-      return 1;
+      return window;
     }
   glfwMakeContextCurrent (window);
+  glfwSetFramebufferSizeCallback (window, framebuffer_size_callback);
+}
 
+int
+glfw_load_opengl_function_pointers (void)
+{
   if (!gladLoadGLLoader ((GLADloadproc)glfwGetProcAddress))
     {
       fprintf (stderr, "Failed to initialize GLAD\n");
       return 1;
     }
+  return 0;
+}
 
-  glViewport (0, 0, 800, 600);
-  glfwSetFramebufferSizeCallback (window, framebuffer_size_callback);
+GLFWwindow *
+glfw_do_init (void)
+{
+  if (glfw_init_and_configure ())
+    return NULL;
 
+  GLFWwindow *window = glfw_window_creation ();
+  if (!window)
+    {
+      glfwTerminate ();
+      return NULL;
+    }
+
+  if (glfw_load_opengl_function_pointers ())
+    {
+      glfwTerminate ();
+      return NULL;
+    }
+
+  return window;
+}
+
+void
+glfw_render_loop (GLFWwindow *window)
+{
   while (!glfwWindowShouldClose (window))
     {
+      process_input (window);
+
       glClearColor (0.2f, 0.3f, 0.3f, 1.0f);
       glClear (GL_COLOR_BUFFER_BIT);
 
-      process_input (window);
-
-      glfwPollEvents ();
       glfwSwapBuffers (window);
+      glfwPollEvents ();
     }
-
-  return 0;
 }
 
 void
