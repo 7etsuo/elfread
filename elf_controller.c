@@ -4,6 +4,7 @@
 #include <libelf.h>
 #endif
 
+// [TODO] : need to add elf.h for macro definitions (apple)
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
