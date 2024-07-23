@@ -5,25 +5,23 @@
 
 #define MAX_MENU_ITEMS (0xf)
 
-typedef int (*MenuAction) (void *);
+typedef int (*MenuAction)(void *);
 
-typedef struct _MenuItem
-{
-  const char *text;
-  MenuAction action;
+typedef struct _MenuItem {
+	const char *text;
+	MenuAction action;
 } MenuItem;
 
-typedef struct _MenuConfig
-{
-  const char *title;
-  const MenuItem *items;
-  void *data;
-  size_t item_count;
+typedef struct _MenuConfig {
+	const char *title;
+	const MenuItem *items;
+	void *data;
+	size_t item_count;
 } MenuConfig;
 
-void elfprint (const char *str);
-void print_and_wait (const char *str);
-void do_elf_menu (void);
-int init_elf_menu (MenuConfig *config);
+void elfprint(const char *str);
+void print_and_wait(const char *str);
+void do_elf_menu(void);
+int init_elf_menu(MenuConfig *config);
 
 #endif // ELF_MENU_H
