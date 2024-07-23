@@ -13,17 +13,17 @@ void
 draw_filled_circle (SDL_Renderer *renderer, int x, int y, int radius)
 {
   for (int w = 0; w < radius * 2; w++)
+  {
+    for (int h = 0; h < radius * 2; h++)
     {
-      for (int h = 0; h < radius * 2; h++)
-        {
-          int dx = radius - w;
-          int dy = radius - h;
-          if ((dx * dx + dy * dy) <= (radius * radius))
-            {
-              SDL_RenderDrawPoint (renderer, x + dx, y + dy);
-            }
-        }
+      int dx = radius - w;
+      int dy = radius - h;
+      if ((dx * dx + dy * dy) <= (radius * radius))
+      {
+        SDL_RenderDrawPoint (renderer, x + dx, y + dy);
+      }
     }
+  }
 }
 
 void
@@ -74,3 +74,4 @@ main (int argc, char *argv[])
   SDL_Quit ();
   return 0;
 }
+
