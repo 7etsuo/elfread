@@ -3663,6 +3663,7 @@ __ATPOSTRUN__	no_build/ems_test/smile_face/index.js	/^var __ATPOSTRUN__ = []; \/
 __ATPRERUN__	no_build/ems_test/a.out.js	/^var __ATPRERUN__  = []; \/\/ functions called before the runtime is initialized$/;"	v
 __ATPRERUN__	no_build/ems_test/hello.js	/^var __ATPRERUN__  = []; \/\/ functions called before the runtime is initialized$/;"	v
 __ATPRERUN__	no_build/ems_test/smile_face/index.js	/^var __ATPRERUN__  = []; \/\/ functions called before the runtime is initialized$/;"	v
+__STDDEF_H	include/stdelf.h	/^#define __STDDEF_H$/;"	d
 ___syscall_fcntl64	no_build/ems_test/smile_face/index.js	/^  function ___syscall_fcntl64(fd, cmd, varargs) {$/;"	f
 ___syscall_ioctl	no_build/ems_test/smile_face/index.js	/^  function ___syscall_ioctl(fd, op, varargs) {$/;"	f
 ___syscall_openat	no_build/ems_test/smile_face/index.js	/^  function ___syscall_openat(dirfd, path, flags, varargs) {$/;"	f
@@ -3704,6 +3705,15 @@ __glad_h_	no_build/OpenGL/include/glad/glad.h	/^#define __glad_h_$/;"	d
 __hash_table	.vscode/settings copy.json	/^        "__hash_table": "c",$/;"	s	object:files.associations
 __khrplatform_h_	no_build/OpenGL/include/KHR/khrplatform.h	/^#define __khrplatform_h_$/;"	d
 __libdw_extern_inline	include/libelf.h	/^#define __libdw_extern_inline /;"	d
+__need_NULL	include/stdelf.h	/^#define __need_NULL$/;"	d
+__need_max_align_t	include/stdelf.h	/^#define __need_max_align_t$/;"	d
+__need_nullptr_t	include/stdelf.h	/^#define __need_nullptr_t$/;"	d
+__need_offsetof	include/stdelf.h	/^#define __need_offsetof$/;"	d
+__need_ptrdiff_t	include/stdelf.h	/^#define __need_ptrdiff_t$/;"	d
+__need_rsize_t	include/stdelf.h	/^#define __need_rsize_t$/;"	d
+__need_size_t	include/stdelf.h	/^#define __need_size_t$/;"	d
+__need_unreachable	include/stdelf.h	/^#define __need_unreachable$/;"	d
+__need_wchar_t	include/stdelf.h	/^#define __need_wchar_t$/;"	d
 __nonnull_attribute__	include/libelf.h	/^#define __nonnull_attribute__(/;"	d
 __noreturn_attribute__	include/libelf.h	/^#define __noreturn_attribute__ /;"	d
 __noreturn_attribute__	include/libelf.h	/^#define __noreturn_attribute__$/;"	d
