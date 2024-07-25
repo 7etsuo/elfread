@@ -108,13 +108,15 @@ int do_run_controller(const char *const filename)
 	int retval = 1;
 
 	FileContents *filecontents = robust_read_file(filename);
-	if (filecontents == NULL)
+	if (filecontents == NULL) {
 		goto ret;
+	}
 
 	MenuConfig config = { "ELF Menu", menu_items, filecontents,
 			      num_menu_items };
-	if (init_elf_menu(&config) != 0)
+	if (init_elf_menu(&config) != 0) {
 		goto clean;
+	}
 
 	do_elf_menu();
 

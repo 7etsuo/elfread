@@ -2489,6 +2489,7 @@ HEAPU32	no_build/ems_test/smile_face/index.js	/^  HEAPU32,$/;"	v
 HEAPU8	no_build/ems_test/a.out.js	/^  HEAPU8,$/;"	v
 HEAPU8	no_build/ems_test/hello.js	/^  HEAPU8,$/;"	v
 HEAPU8	no_build/ems_test/smile_face/index.js	/^  HEAPU8,$/;"	v
+HELPERS_H	include/helpers.h	/^#define HELPERS_H$/;"	d
 HOME	no_build/ems_test/smile_face/index.js	/^          'HOME': '\/home\/web_user',$/;"	p	variable:env
 ICASEFS	no_build/ems_test/a.out.js	/^var ICASEFS = 'ICASEFS is no longer included by default; build with -licasefs.js';$/;"	v
 ICASEFS	no_build/ems_test/hello.js	/^var ICASEFS = 'ICASEFS is no longer included by default; build with -licasefs.js';$/;"	v
@@ -3628,6 +3629,7 @@ S_TYPE_STRINGS	include/s_type_strings.h	/^#define S_TYPE_STRINGS$/;"	d
 TTY	no_build/ems_test/smile_face/index.js	/^  var TTY = {$/;"	v
 TTY.ttys	no_build/ems_test/smile_face/index.js	/^        TTY.ttys[dev] = { input: [], output: [], ops: ops };$/;"	p
 UNAME_S	no_build/OpenGL/Makefile	/^UNAME_S := $(shell uname -s)$/;"	m
+UNUSED	include/helpers.h	/^#define UNUSED(/;"	d
 USER	no_build/ems_test/smile_face/index.js	/^          'USER': 'web_user',$/;"	p	variable:env
 UTF8ArrayToString	no_build/ems_test/a.out.js	/^  var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {$/;"	f
 UTF8ArrayToString	no_build/ems_test/hello.js	/^  var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {$/;"	f
